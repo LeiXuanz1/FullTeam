@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FullTeam - Venues</title>
+<link rel="stylesheet" href="style.css" />
+
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1 class="header-title" aria-label="Logo FullTeam">FullTeam</h1>
+    <div class="menu-buttons">
+    <button class="btn-menu active" type="button" onclick="setActiveMenu(this)">Sewa Lapangan</button>
+    <button class="btn-menu" type="button" onclick="setActiveMenu(this)">Main Bareng</button>
+  </div>
+    <form class="search-form" id="searchForm" onsubmit="return false;" role="search" aria-label="Search venues">
+      <input
+        type="search"
+        id="searchInput"
+        placeholder="Cari venue"
+        autocomplete="off"
+        aria-label="Cari venue"
+      />
+      <button type="submit" class="search-btn" aria-label="Search" onclick="filterVenues()">🔍</button>
+    </form>
+   <div class="auth-buttons">
+  <button class="btn-masuk" type="button">Masuk</button>
+  <button class="btn-daftar" type="button">Daftar</button>
+  <button class="btn-profile" type="button" style="display:none;">
+  <img src="https://img.icons8.com/ios/40/000000/user-male-circle--v2.png" alt="Profil" style="width:28px;height:28px;border-radius:50%;" />
+</button>
+      <div class="profile-dropdown" id="profileDropdown" style="display:none;">
+    <button type="button" class="dropdown-item" id="btnProfile">Profile</button>
+    <button type="button" class="dropdown-item" id="btnDashboard">Dashboard</button>
+    <button type="button" class="dropdown-item" id="btnLogout">Logout</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div id="authModal" class="auth-modal" style="display:none;">
+  <div class="auth-modal-content">
+    <span class="auth-modal-close" id="authModalClose">&times;</span>
+    <div id="authModalBody"></div>
+  </div>
+</div>
+
+<main>
+  <div class="venue-header-row">
+  <h2 class="section-title" id="venueTitle">Venue</h2>
+    <div class="autocomplete-location">
+      <input type="text" id="locationAutocomplete" placeholder="Cari lokasi" autocomplete="off" />
+      <ul id="locationSuggestions" class="suggestions-list"></ul>
+    </div>
+  </div>
+
+  <div class="venues-grid" id="venuesGrid" aria-live="polite" aria-relevant="additions removals">
+    <!-- Venue cards will be dynamically inserted here -->
+  </div>
+  <div id="venueDetailContainer"></div>
+  <nav class="pagination" aria-label="Pagination venues" id="paginationNav">
+    <!-- Pagination buttons inserted here -->
+  </nav>
+</main>
+
+<main>
+  <h2 class="section-title" id="mainbarengTitle">Main Bareng</h2>
+  <div class="mainbareng-grid" id="mainbarengGrid" aria-live="polite" aria-relevant="additions removals">
+    <!-- Event cards will be dynamically inserted here -->
+  </div>
+</main>
+
+<!-- Modal Booking -->
+<div id="bookingModal" style="display:none;">
+  <div class ="modal-content">
+    <h3>Pilih Jadwal Lapangan</h3>
+    <div id="scheduleSlots"></div>
+    <button onclick="closeBookingModal()">Tutup</button>
+  </div>
+</div>
+
+<!-- Tambahkan sebelum </body> -->
+<div id="notifLogin" style="display:none;position:fixed;top:40px;left:50%;transform:translateX(-50%);background:#fff3cd;color:#856404;padding:18px 32px;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.18);z-index:10001;font-size:1.1rem;">
+  <span>Anda harus login terlebih dahulu sebelum melakukan booking.</span>
+  <button id="notifLoginClose" style="margin-left:24px;background:#ffe8a1;border:none;padding:6px 18px;border-radius:6px;cursor:pointer;">Tutup</button>
+</div>
+
+<footer>
+  &copy; 2025 FullTeam - Venues Listing. All rights reserved.
+</footer>
+
+<script>
+  // modal pop up
+  function showAuthModal(type) {
+  const modal = document.getElementById('authModal');
+  const body = document.getElementById('authModalBody');
+  if (type === 'login') {
+    body.innerHTML = `
+      <h2>Masuk</h2>
+      <form id="loginForm" autocomplete="off">
+        <input type="email" placeholder="Email" required />
+        <input type="password" placeholder="Password" required />
+        <button type="submit">Masuk</button>
+        <div class="auth-switch">
+          Belum punya akun? <a onclick="showAuthModal('register')">Daftar</a><br>
+          <a onclick="showAuthModal('forgot')">Lupa password?</a>
+        </div>
+      </form>
+    `;
+  } else if (type === 'register') {
+    body.innerHTML = `
+      <h2>Daftar</h2>
+      <form id="registerForm" autocomplete="off">
+        <input type="email" placeholder="Email" required />
+        <input type="password" placeholder="Password" required />
+        <input type="password" placeholder="Ulangi Password" required />
+        <button type="submit">Daftar</button>
+        <div class="auth-switch">
+          Sudah punya akun? <a onclick="showAuthModal('login')">Masuk</a>
+        </div>
+      </form>
+    `;
+  } else if (type === 'forgot') {
+    body.innerHTML = `
+      <h2>Lupa Password</h2>
+      <form id="forgotForm" autocomplete="off">
+        <input type="email" placeholder="Email" required />
+        <button type="submit">Kirim</button>
+        <div class="auth-switch">
+          <a onclick="showAuthModal('login')">Kembali ke Masuk</a>
+        </div>
+      </form>
+    `;
+  }
+  modal.style.display = 'flex';
+}
+
+// save user ke database
+document.addEventListener('submit', function(e) {
+  if (e.target && e.target.id === 'registerForm') {
+    e.preventDefault();
+    const email = e.target.querySelector('input[type="email"]').value.trim().toLowerCase();
+    const password = e.target.querySelectorAll('input[type="password"]')[0].value;
+    const password2 = e.target.querySelectorAll('input[type="password"]')[1].value;
+
+    if (password !== password2) {
+      alert('Password tidak sama!');
+      return;
+    }
+
+    // Kirim data ke backend (MySQL)
+    fetch('http://localhost:3000/api/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert('Pendaftaran berhasil! Silakan login.');
+        showAuthModal('login');
+      } else {
+        alert(data.message || 'Pendaftaran gagal!');
+      }
+    })
+    .catch(() => alert('Terjadi kesalahan, coba lagi.'));
+  }
+});
+
+// validasi login
+document.addEventListener('submit', function(e) {
+  if (e.target && e.target.id === 'loginForm') {
+    e.preventDefault();
+    const email = e.target.querySelector('input[type="email"]').value.trim().toLowerCase();
+    const password = e.target.querySelector('input[type="password"]').value;
+
+    fetch('http://localhost:3000/api/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('authModal').style.display = 'none';
+        updateAuthUI();
+      } else {
+        alert('Email atau password salah!');
+      }
+    });
+  }
+});
+
+function isLoggedIn() {
+  // Ganti 'session_id' sesuai nama cookie dari backend kamu
+  return document.cookie.split(';').some(c => c.trim().startsWith('session_id='));
+}
+
+// Tutup modal
+document.getElementById('authModalClose').onclick = function() {
+  document.getElementById('authModal').style.display = 'none';
+};
+window.addEventListener('click', function(e) {
+  const modal = document.getElementById('authModal');
+  if (e.target === modal) modal.style.display = 'none';
+});
+
+// Event tombol header
+document.querySelector('.btn-masuk').onclick = () => showAuthModal('login');
+document.querySelector('.btn-daftar').onclick = () => showAuthModal('register');
+
+// Event untuk menampilkan form login, forgot password, dan register
+  function showLogin(e) {
+  e.preventDefault();
+  document.getElementById('form-login').style.display = '';
+  document.getElementById('form-forgot').style.display = 'none';
+  document.getElementById('form-register').style.display = 'none';
+}
+function showForgot(e) {
+  e.preventDefault();
+  document.getElementById('form-login').style.display = 'none';
+  document.getElementById('form-forgot').style.display = '';
+  document.getElementById('form-register').style.display = 'none';
+}
+function showRegister(e) {
+  e.preventDefault();
+  document.getElementById('form-login').style.display = 'none';
+  document.getElementById('form-forgot').style.display = 'none';
+  document.getElementById('form-register').style.display = '';
+}
+
+// Update UI based on login state
+function updateAuthUI() {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  document.querySelector('.btn-masuk').style.display = isLoggedIn ? 'none' : '';
+  document.querySelector('.btn-daftar').style.display = isLoggedIn ? 'none' : '';
+  document.querySelector('.btn-profile').style.display = isLoggedIn ? '' : 'none';
+}
+
+// Panggil fungsi ini setelah login/logout dan saat halaman dimuat
+updateAuthUI();
+
+document.querySelector('.btn-profile').onclick = function() {
+  if (confirm('Logout?')) {
+    localStorage.removeItem('isLoggedIn');
+    updateAuthUI();
+  }
+};
+
+const btnProfile = document.querySelector('.btn-profile');
+const dropdown = document.getElementById('profileDropdown');
+
+// Toggle dropdown saat klik ikon profil
+btnProfile.onclick = function(e) {
+  e.stopPropagation();
+  dropdown.style.display = dropdown.style.display === 'none' ? 'flex' : 'none';
+};
+
+// Tutup dropdown jika klik di luar
+document.addEventListener('click', function(e) {
+  if (!dropdown.contains(e.target) && e.target !== btnProfile) {
+    dropdown.style.display = 'none';
+  }
+});
+
+// Logout
+document.getElementById('btnLogout').onclick = function() {
+  localStorage.removeItem('isLoggedIn');
+  localStorage.removeItem('userEmail');
+  dropdown.style.display = 'none';
+  updateAuthUI();
+};
+
+// Profile dan Dashboard (contoh: alert, bisa diarahkan ke halaman lain)
+document.getElementById('btnProfile').onclick = function() {
+  alert('Fitur Profile belum tersedia.');
+  dropdown.style.display = 'none';
+};
+document.getElementById('btnDashboard').onclick = function() {
+  alert('Fitur Dashboard belum tersedia.');
+  dropdown.style.display = 'none';
+};
+
+  // Venue data
+  let venuesData = [];
+
+  function loadVenuesFromAPI() {
+    fetch('http://localhost:3000/api/venues')
+    .then(res => res.json())
+    .then(data => {
+      venuesData = data;
+      console.log(venuesData)
+      renderVenues();
+    })  
+    .catch(err => {
+      console.error('Gagal mengambil data venue:', err);
+    });
+  }
+
+  loadVenuesFromAPI();
+
+  // Main Bareng data
+  const mainbarengData = [
+  {
+    id: 1,
+    title: "Mabar Selasa Malam",
+    sport: "Badminton",
+    level: "Newbie - Pro",
+    datetime: "Sel, 03 Jun 2025, 19:00 - 22:00",
+    location: "Lapangan D - Bulu Bulu Badminton, Kota Tangerang Selatan",
+    bookedVia: true,
+    superhost: true,
+    participants: [
+      { name: "A", avatar: "https://randomuser.me/api/portraits/men/1.jpg" },
+      { name: "T", avatar: "https://randomuser.me/api/portraits/women/2.jpg" }
+    ],
+    quota: "14/15",
+    host: {
+      name: "Sobat Kalong",
+      rating: 4.93,
+      count: 17
+      }
+    }, 
+  ];
+
+  let lastVenueSearch = '';
+  let activeCategory = 'all';
+  let activeLocation = 'all';
+  let currentPage = 1;
+  const venuesPerPage = 6;
+
+  // Render venue cards
+  function createVenueCard(venue) {
+    const article = document.createElement('article');
+    article.className = 'venue-card';
+    article.setAttribute('data-category', venue.category);
+    article.setAttribute('data-location', venue.location);
+
+    const img = document.createElement('img');
+    img.className = 'venue-img';
+    img.src = venue.image;
+    img.alt = venue.title;
+
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'venue-info';
+
+    const title = document.createElement('h3');
+    title.className = 'venue-title';
+    title.textContent = venue.title;
+
+    const locationP = document.createElement('p');
+    locationP.className = 'venue-location';
+    locationP.textContent = capitalizeWords(venue.location);
+
+    // Rating stars
+    const ratingDiv = document.createElement('div');
+    ratingDiv.className = 'rating';
+    ratingDiv.setAttribute('aria-label', `Rating ${venue.rating} dari 5`);
+    const fullStars = Math.floor(venue.rating);
+    const halfStar = venue.rating - fullStars >= 0.5;
+    for (let i = 1; i <= 5; i++) {
+      const starSpan = document.createElement('span');
+      if (i <= fullStars) {
+        starSpan.textContent = '★';
+        starSpan.style.color = '#ffc107';
+      } else if (i === fullStars + 1 && halfStar) {
+        starSpan.textContent = '☆'; // half star substitute
+        starSpan.style.color = '#ffc107';
+      } else {
+        starSpan.textContent = '☆';
+        starSpan.style.color = '#ddd';
+      }
+      ratingDiv.appendChild(starSpan);
+    }
+    const ratingValue = document.createElement('div');
+    ratingValue.className = 'rating-value';
+    ratingValue.textContent = venue.rating.toFixed(1);
+    ratingDiv.appendChild(ratingValue);
+
+    // Meta info: price and capacity
+    const metaDiv = document.createElement('div');
+    metaDiv.className = 'venue-meta';
+
+    const priceSpan = document.createElement('span');
+    priceSpan.textContent = venue.price;
+
+    const capacitySpan = document.createElement('span');
+    capacitySpan.textContent = `Capacity: ${venue.capacity}`;
+
+    metaDiv.appendChild(priceSpan);
+    metaDiv.appendChild(capacitySpan);
+
+    // Availability badge
+    const availSpan = document.createElement('span');
+    availSpan.className = 'availability ' + (venue.availability ? 'available' : 'unavailable');
+    availSpan.textContent = venue.availability ? 'Available' : 'Unavailable';
+    availSpan.setAttribute('aria-label', venue.availability ? 'Tersedia' : 'Tidak tersedia');
+
+    // Description
+    const descP = document.createElement('p');
+    descP.className = 'venue-description';
+    descP.textContent = venue.description;
+
+    infoDiv.appendChild(title);
+    infoDiv.appendChild(locationP);
+    infoDiv.appendChild(ratingDiv);
+    infoDiv.appendChild(metaDiv);
+    infoDiv.appendChild(availSpan);
+    infoDiv.appendChild(descP);
+
+    article.appendChild(img);
+    article.appendChild(infoDiv);
+
+    article.addEventListener('click', () => {
+      showVenueDetail(venue);
+    });
+
+    return article;
+  }
+
+  // Render initial venues
+  function showVenueDetail(venue) {
+  document.querySelector('.venue-header-row').style.display = 'none';
+  document.getElementById('venuesGrid').style.display = 'none';
+  document.getElementById('paginationNav').style.display = 'none';
+
+  const container = document.getElementById('venueDetailContainer');
+  container.innerHTML = `
+    <div class="venue-detail-page">
+      <h1>${venue.title}</h1>
+      <div class="venue-detail-meta">
+        <span>⭐ ${venue.rating ?? '-'} &nbsp;•&nbsp; ${venue.location}</span>
+      </div>
+      <img src="${venue.image}" alt="${venue.title}" class="venue-detail-img">
+      <hr>
+      <h3>Deskripsi</h3>
+      <p>${venue.description ?? '-'}</p>
+      <h3>Aturan Venue</h3>
+      <ol>
+        <li>Pelanggan harus datang tepat waktu.</li>
+        <li>Dilarang membawa air mineral gelas.</li>
+        <li>Dilarang bersandar dijaring.</li>
+        <li>Dilarang membawa senjata tajam dan minuman keras.</li>
+        <li>Dilarang memakai sepatu berdempul.</li>
+      </ol>
+      <h3>Lokasi Venue</h3>
+      <div class="venue-detail-location">
+        Pd Pasar Jaya Pasar Baru Metro Atom Plaza Lt. 8 (Gedung Parkir) Jakarta Pusat
+      </div>
+      <h3>Fasilitas</h3>
+      <ul class="venue-detail-facilities">
+        <li>🍽️ Cafe & Resto</li>
+        <li>🍔 Jual Makanan Ringan</li>
+        <li>🥤 Jual Minuman</li>
+        <li>🕌 Musholla</li>
+        <li>🚗 Parkir Mobil</li>
+        <li>🏍️ Parkir Motor</li>
+      </ul>
+      <h3>Jadwal Lapangan</h3>
+      <button onclick="openBookingModal(${venue.id})" class="btn-cek-jadwal">Cek Jadwal Tersedia</button>
+      <button class="btn-kembali" onclick="backToVenueList()">Kembali ke daftar venue</button>
+    </div>
+  `;
+}
+
+let selectedVenueId = null;
+
+// Open booking modal
+function openBookingModal(venueId) {
+  selectedVenueId = venueId;
+  document.getElementById('bookingModal').style.display = 'block';
+  document.body.style.overflow = 'hidden'; // Disable body scroll
+  // Tampilkan semua jadwal
+  let html = '';
+  jadwalLapangan.forEach(jadwal => {
+    html += `
+      <div class="jadwal-card">
+        <div class="jadwal-waktu"><b>${jadwal.start} - ${jadwal.end}</b></div>
+        <div class="jadwal-harga">${jadwal.price}</div>
+        <button class="btn-booking" onclick="bookSlot('${jadwal.start}', '${jadwal.end}')">Booking</button>
+      </div>
+    `;
+  });
+  document.getElementById('scheduleSlots').innerHTML = html;
+}
+
+document.getElementById('scheduleSlots').onclick = function(e) {
+  if (e.target.classList.contains('btn-booking')) {
+    if (!isLoggedIn()) {
+      document.getElementById('notifLogin').style.display = 'block';
+      return;
+    }
+    const card = e.target.closest('.jadwal-card');
+    const waktu = card.querySelector('.jadwal-waktu').innerText;
+    // Lakukan aksi booking di sini, misal:
+    alert('Booking untuk: ' + waktu);
+  }
+};
+
+document.getElementById('notifLoginClose').onclick = function() {
+  document.getElementById('notifLogin').style.display = 'none';
+  showAuthModal('login');
+};
+
+function closeBookingModal() {
+  document.getElementById('bookingModal').style.display = 'none';
+  document.body.style.overflow = ''; // Enable body scroll
+}
+
+// Function to load schedule for selected venue
+function loadSchedule() {
+  const date = document.getElementById('bookingDate').value;
+  if (!date) return;
+  fetch(`http://localhost:3000/api/schedule?venueId=${selectedVenueId}&date=${date}`)
+    .then(res => res.json())
+    .then(slots => {
+      // slots = [{time: "07:00-08:00", booked: false}, ...]
+      let html = '';
+      slots.forEach(slot => {
+        html += `<button ${slot.booked ? 'disabled' : ''} onclick="bookSlot('${slot.time}')">
+          ${slot.time} ${slot.booked ? '(Booked)' : ''}
+        </button>`;
+      });
+      document.getElementById('scheduleSlots').innerHTML = html;
+    });
+}
+
+// Function to book a slot
+function bookSlot(time) {
+  const date = document.getElementById('bookingDate').value;
+  fetch('http://localhost:3000/api/book', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({venueId: selectedVenueId, date, time})
+  })
+  .then(res => res.json())
+  .then(result => {
+    alert(result.message);
+    loadSchedule(); // refresh slot
+  });
+}
+
+// Function to go back to the venue list
+function backToVenueList() {
+  document.getElementById('venueDetailContainer').innerHTML = '';
+  document.getElementById('venuesGrid').style.display = '';
+  document.getElementById('paginationNav').style.display = '';
+  document.querySelector('.venue-header-row').style.display = '';
+  document.getElementById('mainbarengGrid').style.display = 'none';
+  document.getElementById('mainbarengTitle').style.display = 'none';
+  closeBookingModal();
+}
+
+document.querySelectorAll('.btn-menu').forEach(btn => {
+  btn.addEventListener('click', function() {
+    setActiveMenu(this);
+    if (this.textContent.trim() === 'Sewa Lapangan') {
+      backToVenueList();
+    }
+  });
+});
+
+  // Render main bareng events
+  function renderMainBareng() {
+  const container = document.getElementById('mainbarengGrid');
+  container.innerHTML = '';
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+  const filtered = mainbarengData.filter(event =>
+    event.title.toLowerCase().includes(searchTerm)
+  );
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; color:#888; user-select:none;">Event tidak ditemukan.</p>';
+    return;
+  }
+  
+  filtered.forEach(event => {
+    const card = document.createElement('div');
+    card.className = 'mainbareng-card';
+    card.innerHTML = `
+      <div class="mainbareng-header">
+        <strong>${event.title}</strong>
+        <span class="mainbareng-meta">
+          <span>${event.sport}</span> &bull; <span>${event.level}</span>
+        </span>
+        <div class="mainbareng-time">${event.datetime}</div>
+        <div class="mainbareng-location">${event.location}</div>
+        <div class="mainbareng-badges">
+          ${event.bookedVia ? '<span class="badge booked">Booked via AYO</span>' : ''}
+          ${event.superhost ? '<span class="badge superhost">Superhost</span>' : ''}
+        </div>
+        <div class="mainbareng-participants">
+          ${event.participants.map(p => `<img src="${p.avatar}" alt="${p.name}" class="avatar" title="${p.name}">`).join('')}
+          <span class="quota">${event.quota}</span>
+        </div>
+        <div class="mainbareng-host">
+          <span>${event.host.name}</span>
+          <span class="host-rating">★ ${event.host.rating} (${event.host.count})</span>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+  function capitalizeWords(str) {
+    return str.replace(/\b\w/g, l => l.toUpperCase());
+  }
+
+  // Filter lokasi
+  function filterVenues() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+    let filtered = venuesData.filter(v => {
+      // category filter
+      const categoryMatch = activeCategory === 'all' || v.category === activeCategory || v.eventTypes.includes(activeCategory);
+      // location filter
+      const locationMatch = activeLocation === 'all' || v.location === activeLocation;
+      // search filter
+      const searchMatch =
+        v.title.toLowerCase().includes(searchTerm) ||
+        v.location.toLowerCase().includes(searchTerm) ||
+        v.description.toLowerCase().includes(searchTerm);
+      return categoryMatch && locationMatch && searchMatch;
+    });
+    return filtered;
+  }
+
+  // Set active menu button and update UI
+  function setActiveMenu(btn) {
+    document.querySelectorAll('.btn-menu').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const isMainBareng = btn.textContent.trim() === 'Main Bareng';
+    const searchInput = document.getElementById('searchInput');
+
+    searchInput.placeholder = isMainBareng ? 'Cari Event' : 'Cari Venue';
+
+    if (isMainBareng) {
+      lastVenueSearch = searchInput.value;
+      searchInput.value = '';
+      document.getElementById('venueDetailContainer').innerHTML = '';
+    } else {
+      searchInput.value = lastVenueSearch;
+    }
+
+    document.getElementById('venueTitle').style.display = isMainBareng ? 'none' : '';
+    document.getElementById('mainbarengTitle').style.display = isMainBareng ? '' : 'none';
+
+    document.getElementById('venuesGrid').style.display = isMainBareng ? 'none' : '';
+    document.getElementById('paginationNav').style.display = isMainBareng ? 'none' : '';
+    document.getElementById('mainbarengGrid').style.display = isMainBareng ? '' : 'none';
+
+    if (isMainBareng) {
+      renderMainBareng();
+    } else {
+      renderVenues();
+    }
+  }
+
+  let lokasiIndonesia = [];
+
+  // Load regions data for autocomplete
+  fetch('regions.json')
+    .then(response => response.json())
+    .then(data => {
+      lokasiIndonesia = [];
+      data.forEach(item => {
+        item.kota.forEach(kota => {
+          lokasiIndonesia.push(`${kota}, ${item.provinsi}`);
+      });
+    });
+
+      const locationInput = document.getElementById('locationAutocomplete');
+      const suggestionsList = document.getElementById('locationSuggestions');
+
+      locationInput.addEventListener('input', function() {
+      const keyword = this.value.trim().toLowerCase();
+      suggestionsList.innerHTML = '';
+        if (!keyword || lokasiIndonesia.length === 0) return;
+
+      let filtered = lokasiIndonesia.filter(l => l.toLowerCase().includes(keyword));
+        if (keyword === 'jawa') {
+      filtered = lokasiIndonesia.filter(l => l.toLowerCase().includes('jawa')).slice(0, 5);
+      } else {
+      filtered = filtered.slice(0, 5);
+      }
+
+      filtered.forEach(lokasi => {
+        const li = document.createElement('li');
+        li.textContent = lokasi;
+        li.onclick = () => {
+        locationInput.value = lokasi;
+        suggestionsList.innerHTML = '';
+      };
+        suggestionsList.appendChild(li);
+      });
+    });
+
+    // Sembunyikan dropdown jika klik di luar
+    document.addEventListener('click', function(event) {
+      if (!locationInput.contains(event.target) && !suggestionsList.contains(event.target)) {
+        suggestionsList.innerHTML = '';
+      }
+    });
+  });
+
+  // Jadwal lapangan data
+  const jadwalLapangan = [
+  { start: "07:00", end: "08:00", price: "Rp100.000" },
+  { start: "08:00", end: "09:00", price: "Rp100.000" },
+  { start: "09:00", end: "10:00", price: "Rp100.000" },
+  { start: "10:00", end: "11:00", price: "Rp100.000" },
+  { start: "11:00", end: "12:00", price: "Rp100.000" },
+  { start: "12:00", end: "13:00", price: "Rp100.000" },
+  { start: "13:00", end: "14:00", price: "Rp100.000" },
+  { start: "14:00", end: "15:00", price: "Rp100.000" },
+  { start: "15:00", end: "16:00", price: "Rp100.000" },
+  { start: "16:00", end: "17:00", price: "Rp100.000" },
+  { start: "17:00", end: "18:00", price: "Rp100.000" },
+  { start: "18:00", end: "19:00", price: "Rp100.000" },
+  { start: "19:00", end: "20:00", price: "Rp100.000" },
+  { start: "20:00", end: "21:00", price: "Rp100.000" },
+  { start: "21:00", end: "22:00", price: "Rp100.000" }
+];
+
+  // Render venues with pagination
+  function renderVenues() {
+    const container = document.getElementById('venuesGrid');
+    container.innerHTML = '';
+
+    const filtered = filterVenues();
+    const totalVenues = filtered.length;
+    const totalPages = Math.ceil(totalVenues / venuesPerPage);
+
+    // Adjust currentPage if out of range
+    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    // Paginate
+    const startIndex = (currentPage - 1) * venuesPerPage;
+    const paginatedVenues = filtered.slice(startIndex, startIndex + venuesPerPage);
+
+    if (paginatedVenues.length === 0) {
+      container.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; color:#888; user-select:none;">Venue tidak ditemukan.</p>';
+      renderPagination(totalPages);
+      return;
+    }
+
+    paginatedVenues.forEach(venue => {
+      container.appendChild(createVenueCard(venue));
+    });
+
+    renderPagination(totalPages);
+  }
+
+  // Render pagination controls
+  function renderPagination(totalPages) {
+    const pagination = document.getElementById('paginationNav');
+    pagination.innerHTML = '';
+
+    if (totalPages <= 1) return;
+
+    // Prev button
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '‹';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.setAttribute('aria-label', 'Previous page');
+    prevBtn.onclick = () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderVenues();
+        scrollToTop();
+      }
+    };
+    pagination.appendChild(prevBtn);
+
+    // Page number buttons (show max 5)
+    let startPage = 1;
+    let endPage = totalPages;
+    if (totalPages > 5) {
+      if (currentPage <= 3) {
+        startPage = 1;
+        endPage = 5;
+      } else if (currentPage + 2 >= totalPages) {
+        startPage = totalPages - 4;
+        endPage = totalPages;
+      } else {
+        startPage = currentPage - 2;
+        endPage = currentPage + 2;
+      }
+    }
+    for (let i = startPage; i <= endPage; i++) {
+      const pageBtn = document.createElement('button');
+      pageBtn.textContent = i.toString();
+      pageBtn.className = (i === currentPage) ? 'active' : '';
+      pageBtn.setAttribute('aria-label', `Goto page ${i}`);
+      pageBtn.onclick = () => {
+        currentPage = i;
+        renderVenues();
+        scrollToTop();
+      };
+      pagination.appendChild(pageBtn);
+    }
+
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = '›';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.setAttribute('aria-label', 'Next page');
+    nextBtn.onclick = () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderVenues();
+        scrollToTop();
+      }
+    };
+    pagination.appendChild(nextBtn);
+  }
+
+  // Scroll to top function
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Set category for filtering
+  function setCategory(category) {
+    activeCategory = category;
+    currentPage = 1;
+    // Update buttons active state
+    const btns = document.querySelectorAll('nav.categories button');
+    btns.forEach(b => b.classList.toggle('active', b.getAttribute('data-category') === category));
+    renderVenues();
+  }
+
+  // Set location for filtering
+  function setLocation(location) {
+    activeLocation = location;
+    currentPage = 1;
+    renderVenues();
+  }
+
+  // Event listener for category buttons
+  function filterVenuesEvent() {
+    const isMainBareng = document.querySelector('.btn-menu.active').textContent.trim() === 'Main Bareng';
+    currentPage = 1;
+
+    if (isMainBareng) {
+      renderMainBareng();
+      return;
+    } else {
+      renderVenues();
+    }
+  }
+
+  // Attach event for search enter key
+  document.getElementById('searchInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      filterVenuesEvent();
+    }
+  });
+
+  // Initial render
+  renderVenues();
+  document.getElementById('mainbarengGrid').style.display = 'none';
+  document.getElementById('mainbarengTitle').style.display = 'none';
+</script>
+</body>
+</html>
