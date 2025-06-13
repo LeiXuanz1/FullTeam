@@ -1619,13 +1619,6 @@ function initAutocomplete() {
     pagination.appendChild(nextBtn);
   }
 
-  // Attach event for search enter key
-  document.getElementById('searchInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-    }
-  });
-
   document.getElementById('globalEventSearchInput').addEventListener('input', function() {
   const mainBarengBtn = document.querySelector('.btn-menu');
   if (mainBarengBtn && !mainBarengBtn.classList.contains('active')) {
