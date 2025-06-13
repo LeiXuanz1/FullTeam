@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>FullTeam - Venues</title>
+<title>FullTeam - Cari Teman Mabar</title>
 <link rel="stylesheet" href="style.css" />
 
 </head>
@@ -11,36 +11,114 @@
 <body>
 
 <header>
-  <div class="header-inner">
-    <h1 class="header-title" aria-label="Logo FullTeam">FullTeam</h1>
-    <div class="menu-buttons">
-    <button class="btn-menu active" type="button" onclick="setActiveMenu(this)">Sewa Lapangan</button>
-    <button class="btn-menu" type="button" onclick="setActiveMenu(this)">Main Bareng</button>
-  </div>
-    <form class="search-form" id="searchForm" onsubmit="return false;" role="search" aria-label="Search venues">
-      <input
-        type="search"
-        id="searchInput"
-        placeholder="Cari venue"
-        autocomplete="off"
-        aria-label="Cari venue"
-      />
-      <button type="submit" class="search-btn" aria-label="Search" onclick="filterVenues()">🔍</button>
+  <div class="header-inner" style="display:flex;align-items:center;justify-content:space-between;gap:32px;max-width:100vw;padding: 16px 32px;">
+    <!-- Kiri: Logo & Menu -->
+    <div style="display:flex;align-items:center;gap:32px;min-width:220px;">
+      <h1 class="header-title" aria-label="Logo FullTeam" style="margin:0;padding-left: 250px;">FullTeam</h1>
+      <button class="btn-menu" type="button" style="padding-right: 10px;margin-top: 10px;"onclick="setActiveMenu(this)">Main Bareng</button>
+    </div>
+    <!-- Tengah: Search Bar -->
+    <form id="globalSearchBar" onsubmit="return false;"
+      style="flex:1;min-width:320px;display:flex;align-items:right;box-shadow:0 2px 8px rgba(0,0,0,0.07);background:#fff;border-radius:32px;padding:2px 18px 2px 12px;position:relative;margin:0 32px;">
+      <span style="display:flex;align-items:center;justify-content:center;">
+        <img src="https://img.icons8.com/ios-filled/24/cccccc/search--v1.png" alt="Cari" style="width:22px;height:22px;margin-right:24px;margin-left: 12px;"/>
+      </span>
+      <input type="text" id="globalEventSearchInput"
+        placeholder="Cari event..."
+        style="border:none;outline:none;background:transparent;font-size:1.08rem;flex:1;padding:10px 0 10px 0;border-radius:32px;">
     </form>
-   <div class="auth-buttons">
-  <button class="btn-masuk" type="button">Masuk</button>
-  <button class="btn-daftar" type="button">Daftar</button>
-  <button class="btn-profile" type="button" style="display:none;">
-  <img src="https://img.icons8.com/ios/40/000000/user-male-circle--v2.png" alt="Profil" style="width:28px;height:28px;border-radius:50%;" />
-</button>
-      <div class="profile-dropdown" id="profileDropdown" style="display:none;">
-    <button type="button" class="dropdown-item" id="btnProfile">Profile</button>
-    <button type="button" class="dropdown-item" id="btnDashboard">Dashboard</button>
-    <button type="button" class="dropdown-item" id="btnLogout">Logout</button>
+    <!-- Kanan: Auth Buttons -->
+    <div class="auth-buttons" style="display:flex;align-items:center;gap:12px;">
+      <!-- ...auth buttons & dropdown... -->
+      <div class="eventku-dropdown" style="display:none;position:relative;margin-right: 0px;">
+        <button id="btnEventDropdown" style="cursor:pointer;width:28px;height:28px;vertical-align:middle;margin-right: 30px;">
+          <img src="assets/pencil.png" alt="Event Menu" style="width:28px;height:28px;" />
+        </button>
+        <div id="eventDropdownMenu" style="display:none;position:absolute;top:36px;right:30px;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.08);min-width:140px;z-index:1000;margin-top: 10px;">
+          <button type="button" class="dropdown-item2" id="btnEventku" style="width:100%;padding:10px 18px;text-align:left;border:none;background:none;">Eventku</button>
+          <button type="button" class="dropdown-item" id="btnBuatEvent" style="width:100%;padding:10px 18px;text-align:left;border:none;background:none;">Buat Event</button>
+        </div>
+      </div>
+      <img id="btnAddMabarProfile" 
+        src="assets/pencil.png" 
+        alt="Buat Event Main Bareng" 
+        title="Buat Event Main Bareng"
+        style="cursor:pointer;width:28px;height:28px;vertical-align:middle;margin-right:10px;display:none;" />
+      <button class="btn-masuk" type="button" style="margin-right: 10px;">Masuk</button>
+      <button class="btn-daftar" type="button" style="margin-right: 250px;">Daftar</button>
+      <button class="btn-profile" type="button" style="display:none;cursor:pointer;margin-right: 300px;">
+        <img src="https://img.icons8.com/ios/40/000000/user-male-circle--v2.png" alt="Profil" style="width:28px;height:28px;border-radius:50%;" />
+      </button>
+      <div class="profile-dropdown" id="profileDropdown" style="display:none;position:absolute;top:48px;margin-right: 300px;padding-bottom: 10px;">
+        <button type="button" class="dropdown-item" id="btnProfile">Profile</button>
+        <button type="button" class="dropdown-item" id="btnDashboard">Dashboard</button>
+        <button type="button" class="dropdown-item" id="btnLogout">Logout</button>
       </div>
     </div>
   </div>
 </header>
+
+<!-- Halaman Data Diri User -->
+<div id="profilePage" style="display:none; max-width:500px; margin:40px auto; background:#fff; border-radius:12px; box-shadow:0 2px 16px rgba(0,0,0,0.08); padding:32px;">
+  <h2>Profile</h2>
+  <form id="editProfileForm">
+    <div style="margin-bottom:18px;">
+      <label>Nama Lengkap <span style="color:red">*</span></label><br>
+      <input type="text" id="editNama" name="nama" required style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;">
+    </div>
+    <div style="margin-bottom:18px;">
+      <label>Username <span style="color:red">*</span></label><br>
+      <input type="text" id="editUsername" name="username" required style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;">
+    </div>
+    <div style="margin-bottom:18px;">
+      <label>Nomor Ponsel</label><br>
+      <input type="text" id="editPonsel" name="ponsel" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;">
+    </div>
+    <div style="margin-bottom:18px;">
+      <label>Email</label><br>
+      <input type="email" id="editEmail" name="email" readonly style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee;background:#f7f7f7;">
+    </div>
+    <div style="display: flex; margin-top: 24px;">
+    <button type="button" id="btnGoBackProfile" style="background: #fff; color: #222; border:1px solid #bbb; border-radius:6px; padding:10px 24px; margin-left:155px;">Kembali</button>
+    <button type="submit" style="padding:10px 24px;border-radius:6px;background:#2563eb;color:#fff;border:none; margin-left: auto;">Simpan Perubahan</button>
+    </div>
+  </form>
+</div>
+
+<!-- Dashboard Main Bareng -->
+<div id="dashboardPage" style="display:none;max-width:700px;margin:40px auto;padding:32px 24px;background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.06);">
+  <h2 style="font-size:1.6rem;font-weight:600;margin-bottom:24px;">Dashboard</h2>
+  <div style="display:flex;gap:32px;margin-bottom:24px;">
+  </div>
+  <div style="display:flex;gap:12px;margin-bottom:20px;">
+    <input type="text" id="searchEventName" placeholder="Cari mabar disini" style="flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:6px;">
+    <div style="position:relative;min-width:180px;">
+  <button id="dropdownCaborBtn" type="button" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;background:#fff;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+    <span id="dropdownCaborLabel">Semua Cabor</span>
+    <span style="font-size:1.2em;">&#9662;</span>
+  </button>
+  <div id="dropdownCaborList" style="display:none;position:absolute;top:110%;left:0;width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.08);z-index:10;max-height:220px;overflow-y:auto;">
+    <div class="dropdown-cabor-item" data-value="">Semua Cabor</div>
+    <div class="dropdown-cabor-item" data-value="Badminton">Badminton</div>
+    <div class="dropdown-cabor-item" data-value="Basketball">Basketball</div>
+    <div class="dropdown-cabor-item" data-value="Billiard">Billiard</div>
+    <div class="dropdown-cabor-item" data-value="Futsal">Futsal</div>
+    <div class="dropdown-cabor-item" data-value="Sepak Bola">Sepak Bola</div>
+    <div class="dropdown-cabor-item" data-value="Tenis Meja">Tenis Meja</div>
+    <div class="dropdown-cabor-item" data-value="Volley">Volley</div>
+  </div>
+</div>
+    <input type="date" id="searchEventDate" placeholder="Tanggal main" style="padding:10px 14px;border:1px solid #ddd;border-radius:6px;width:140px;">
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;">
+    <button class="status-filter-btn active" data-status="all">Semua Status</button>
+    <button class="status-filter-btn" data-status="waiting_payment">Menunggu Pembayaran</button>
+    <button class="status-filter-btn" data-status="joined">Bergabung</button>
+    <button class="status-filter-btn" data-status="cancelled">Dibatalkan</button>
+    <button class="status-filter-btn" data-status="finished">Selesai</button>
+  </div>
+  <div id="dashboardMainbarengGrid"></div>
+</div>
 
 <div id="authModal" class="auth-modal" style="display:none;">
   <div class="auth-modal-content">
@@ -49,51 +127,210 @@
   </div>
 </div>
 
+<!-- Eventku -->
+<div id="eventkuPage" style="display:none;max-width:700px;margin:40px auto;padding:32px 24px;background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.06);">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0;">
+    <h2 style="font-size:1.6rem;font-weight:600;margin-bottom:0;">Eventku</h2>
+    <span id="eventkuStatusLabel" style="font-size:1.6rem;font-weight:500;min-width:110px;text-align:center;padding:6px 18px;color:#222;margin-top: 20px;">Status</span>
+  </div>
+  <hr style="border: none; border-top: 1.5px solid #eee; margin: 20px 0 0 0;">
+  <div id="eventkuList"></div>
+</div>
+
 <main>
-  <div class="venue-header-row">
-  <h2 class="section-title" id="venueTitle">Venue</h2>
-    <div class="autocomplete-location">
-      <input type="text" id="locationAutocomplete" placeholder="Cari lokasi" autocomplete="off" />
-      <ul id="locationSuggestions" class="suggestions-list"></ul>
+  <!-- Section untuk Main Bareng -->
+  <section id="mainBarengSection" style="display:none;">
+  <div class="mainbareng-filter-row" style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:24px;gap:12px;margin-top: 100px;">
+    <div class="autocomplete-location" style="min-width:220px;">
+      <input type="text" id="mainbarengLocationAutocomplete" placeholder="Pilih Kota" autocomplete="off" />
+      <ul id="mainbarengLocationSuggestions" class="suggestions-list"></ul>
     </div>
+    <button class="filter-modal-btn" id="btnOpenFilterModal" type="button" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:6px 16px;display:flex;align-items:center;gap:6px;">
+      <img src="assets/filter.svg" alt="Filter" style="width:22px;height:22px;vertical-align:middle;" />
+      <span style="font-size:1rem;">Filter</span>
+    </button>
+    <button class="filter-btn" onclick="filterMainbareng()" style="padding:8px 22px;border-radius:6px;background:#b71c1c;color:#fff;font-weight:600;border:none;">Cari mabar</button>
   </div>
-
-  <div class="venues-grid" id="venuesGrid" aria-live="polite" aria-relevant="additions removals">
-    <!-- Venue cards will be dynamically inserted here -->
-  </div>
-  <div id="venueDetailContainer"></div>
-  <nav class="pagination" aria-label="Pagination venues" id="paginationNav">
-    <!-- Pagination buttons inserted here -->
-  </nav>
+  <div id="mainbarengCount" style="margin-bottom:0px;font-size:1rem;color:#5f5f5f;"></div>
+  <div id="mainbarengGrid" class="mainbareng-grid" style="min-height: 200px;"></div>
+  <div id="mainbarengDetailContainer" style="display:none;"></div>
+</section>
 </main>
 
-<main>
-  <h2 class="section-title" id="mainbarengTitle">Main Bareng</h2>
-  <div class="mainbareng-grid" id="mainbarengGrid" aria-live="polite" aria-relevant="additions removals">
-    <!-- Event cards will be dynamically inserted here -->
-  </div>
-</main>
-
-<!-- Modal Booking -->
-<div id="bookingModal" style="display:none;">
-  <div class ="modal-content">
-    <h3>Pilih Jadwal Lapangan</h3>
-    <div id="scheduleSlots"></div>
-    <button onclick="closeBookingModal()">Tutup</button>
+<!-- Modal Filter -->
+<div id="filterModal" class="filter-modal" style="display:none;">
+  <div class="filter-modal-content">
+    <span class="filter-modal-close" id="filterModalClose">&times;</span>
+    <h3>Filter Event</h3>
+    <div style="margin-bottom:18px;">
+      <label>Metode Pembayaran</label>
+      <div id="filterMetodeGroup" class="filter-btn-group">
+        <button type="button" class="filter-btn-option" data-value="online_tunai">Online & Tunai</button>
+        <button type="button" class="filter-btn-option" data-value="online">Online</button>
+        <button type="button" class="filter-btn-option" data-value="tunai">Tunai</button>
+      </div>
+    </div>
+    <div style="margin-bottom:18px;">
+      <label>Waktu Mabar</label>
+      <div id="filterWaktuGroup" class="filter-btn-group">
+        <button type="button" class="filter-btn-option" data-value="pagi">Pagi (07-10)</button>
+        <button type="button" class="filter-btn-option" data-value="siang">Siang (11-14)</button>
+        <button type="button" class="filter-btn-option" data-value="sore">Sore (15-18)</button>
+        <button type="button" class="filter-btn-option" data-value="malam">Malam (19-22)</button>
+      </div>
+    </div>
+    <button class="filter-btn" id="btnApplyFilter" style="width:100%;margin-top:18px;">Terapkan Filter</button>
   </div>
 </div>
 
-<!-- Tambahkan sebelum </body> -->
+  <form class="mainbareng-form" id="formCreateMabar" autocomplete="off" style="display: none; margin-top: 60px;">
+  <!-- STEP 1 -->
+  <div id="step1">
+    <label>Judul Event
+      <input type="text" name="title" required placeholder="Contoh: Futsal Minggu Pagi" />
+    </label>
+    <label>Cabang Olahraga
+      <select name="sport" required>
+        <option value="">Pilih olahraga</option>
+        <option value="Sepak Bola">Sepak Bola</option>
+        <option value="Futsal">Futsal</option>
+        <option value="Badminton">Badminton</option>
+        <option value="Basket">Basket</option>
+        <option value="Tenis Meja">Tenis Meja</option>
+        <option value="Billiard">Billiard</option>
+        <option value="Volley">Volley</option>
+      </select>
+    </label>
+    <label>Range Skill Minimum
+      <input type="range" name="min_skill" min="1" max="5" value="1" id="minSkillRange" class="skill-range"
+        oninput="updateSkillBar(this, 'minSkillValue')" />
+      <span id="minSkillValue" class="skill-label">Newbie</span>
+    </label>
+    <label>Range Skill Maksimum
+      <input type="range" name="max_skill" min="1" max="5" value="5" id="maxSkillRange" class="skill-range"
+        oninput="updateSkillBar(this, 'maxSkillValue')" />
+      <span id="maxSkillValue" class="skill-label">Pro</span>
+    </label>
+    <div class="form-actions" style="display: flex; justify-content: space-between; align-items: center;">
+      <button type="button" id="btn-kembali" class="btn-cancel" style="margin-left: 220px;">Batal</>
+      <button type="button" id="btnNextStep" class="btn-create-event">Lanjut</button>
+    </div>
+  </div>
+  <!-- STEP 2 -->
+  <div id="step2" style="display:none;">
+    <label>Tanggal & Waktu Event
+      <input type="datetime-local" name="datetime" required />
+    </label>
+    <label>Durasi (jam)
+      <input type="number" name="duration_hours" min="1" max="12" required placeholder="Contoh: 2" />
+    </label>
+    <label>Deskripsi Event
+      <textarea name="description" required placeholder="Ceritakan tentang event, aturan, fasilitas, dll"></textarea>
+    </label>
+    <label>Lokasi
+      <textarea name="location" required placeholder="Detail lengkap alamat mabar"></textarea>
+    </label>
+    <label>Kuota
+      <input type="number" name="quota" min="2" max="50" required placeholder="Contoh: 10" />
+    </label>
+    <label>Harga per Peserta (Rp)
+      <input type="number" name="price_per_participant" min="0" required placeholder="Contoh: 40000" />
+    </label>
+    <label>Metode Pembayaran
+      <select name="paymentMethod" required>
+        <option value="online_tunai">Online & Tunai</option>
+        <option value="online">Online</option>
+        <option value="tunai">Tunai</option>
+      </select>
+    </label>
+    <div class="form-actions" style="display: flex; justify-content: space-between; align-items: center;">
+      <button type="button" id="btnPrevStep2" class="btn-kembali-step2" style="margin-left: 200px;">Kembali</button>
+      <button type="submit" class="btn-create-event-step2">Buat Event</button>
+    </div>
+  </div>
+</form>
+
+<!-- Modal Event Berhasil -->
+<div id="eventSuccessModal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:32px 24px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,0.12);text-align:center;max-width:320px;">
+    <h3>Event Berhasil Dibuat!</h3>
+    <p>Event main bareng kamu sudah tercatat.</p>
+    <button id="btnEventOk" style="margin-top:18px;padding:10px 32px;border-radius:6px;background:#2563eb;color:#fff;border:none;">OK</button>
+  </div>
+</div>
+
+<!-- Modal Pilih Skill -->
+<div id="skillModal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:0 0 24px 0;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,0.12);text-align:left;max-width:340px;width:94vw;">
+    <div style="padding:20px 24px 0 24px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:1.3em;cursor:pointer;" onclick="closeSkillModal()">&larr;</span>
+      <h3 style="font-size:1.1em;font-weight:600;margin:0;">Tentukan Skillmu</h3>
+    </div>
+    <form id="skillForm" style="padding:12px 24px 0 24px;">
+      <div class="skill-option" data-value="newbie">
+        <span>Newbie</span>
+        <input type="radio" name="skill" value="newbie" style="float:right;" />
+      </div>
+      <div class="skill-option" data-value="beginner">
+        <span>Beginner</span>
+        <input type="radio" name="skill" value="beginner" style="float:right;" />
+      </div>
+      <div class="skill-option" data-value="intermediate">
+        <span>Intermediate</span>
+        <input type="radio" name="skill" value="intermediate" style="float:right;" />
+      </div>
+      <div class="skill-option" data-value="advance">
+        <span>Advanced</span>
+        <input type="radio" name="skill" value="advance" style="float:right;" />
+      </div>
+      <div class="skill-option" data-value="pro">
+        <span>Pro</span>
+        <input type="radio" name="skill" value="pro" style="float:right;" />
+      </div>
+      <button id="btnSkillOk" type="submit" style="width:100%;margin-top:22px;padding:12px 0;border-radius:8px;background:#eee;color:#aaa;border:none;font-weight:600;font-size:1.08rem;cursor:not-allowed;" disabled>Konfirmasi</button>
+    </form>
+  </div>
+</div>
+
 <div id="notifLogin" style="display:none;position:fixed;top:40px;left:50%;transform:translateX(-50%);background:#fff3cd;color:#856404;padding:18px 32px;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.18);z-index:10001;font-size:1.1rem;">
   <span>Anda harus login terlebih dahulu sebelum melakukan booking.</span>
   <button id="notifLoginClose" style="margin-left:24px;background:#ffe8a1;border:none;padding:6px 18px;border-radius:6px;cursor:pointer;">Tutup</button>
 </div>
 
 <footer>
-  &copy; 2025 FullTeam - Venues Listing. All rights reserved.
+  &copy; 2025 FullTeam - Main Bareng Listing. All rights reserved.
 </footer>
 
 <script>
+let mainbarengStatusFilter = 'all';
+
+function setLastSection(section) {
+  if (section === 'mainbareng') {
+    localStorage.setItem('lastSection', section);
+  }
+}
+
+function getLastSection() {
+  return localStorage.getItem('lastSection') || 'mainbareng';
+}
+
+function goToLastSection() {
+  // Sembunyikan semua section utama
+  document.getElementById('profilePage').style.display = 'none';
+  document.getElementById('dashboardPage').style.display = 'none';
+
+  document.getElementById('mainBarengSection').style.display = 'none';
+  document.getElementById('formCreateMabar').style.display = 'none';
+  document.querySelector('main').style.display = '';
+
+const section = getLastSection();
+  document.getElementById('mainBarengSection').style.display = '';
+  document.getElementById('mainbarengGrid').style.display = '';
+  const detail = document.getElementById('mainbarengDetailContainer');
+  if (detail) detail.style.display = 'none';
+  fetchAndRenderMainBareng();
+}
+
   // modal pop up
   function showAuthModal(type) {
   const modal = document.getElementById('authModal');
@@ -115,6 +352,9 @@
     body.innerHTML = `
       <h2>Daftar</h2>
       <form id="registerForm" autocomplete="off">
+        <input type="text" placeholder="Nama Lengkap" required />
+        <input type="text" placeholder="Username" required />
+        <input type="text" placeholder="No Ponsel" required />
         <input type="email" placeholder="Email" required />
         <input type="password" placeholder="Password" required />
         <input type="password" placeholder="Ulangi Password" required />
@@ -139,10 +379,13 @@
   modal.style.display = 'flex';
 }
 
-// save user ke database
+// register user ke database
 document.addEventListener('submit', function(e) {
   if (e.target && e.target.id === 'registerForm') {
     e.preventDefault();
+    const nama = e.target.querySelector('input[placeholder="Nama Lengkap"]').value.trim();
+    const username = e.target.querySelector('input[placeholder="Username"]').value.trim();
+    const ponsel = e.target.querySelector('input[placeholder="No Ponsel"]').value.trim();
     const email = e.target.querySelector('input[type="email"]').value.trim().toLowerCase();
     const password = e.target.querySelectorAll('input[type="password"]')[0].value;
     const password2 = e.target.querySelectorAll('input[type="password"]')[1].value;
@@ -156,7 +399,7 @@ document.addEventListener('submit', function(e) {
     fetch('http://localhost:3000/api/register', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ nama, username, ponsel, email, password })
     })
     .then(res => res.json())
     .then(data => {
@@ -185,9 +428,13 @@ document.addEventListener('submit', function(e) {
     })
     .then(res => res.json())
     .then(data => {
+      console.log('Login response:', data);
       if (data.success) {
-        document.getElementById('authModal').style.display = 'none';
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userEmail', data.user.email);
+        localStorage.setItem('userId', data.user.id);
         updateAuthUI();
+        document.getElementById('authModal').style.display = 'none';
       } else {
         alert('Email atau password salah!');
       }
@@ -196,8 +443,7 @@ document.addEventListener('submit', function(e) {
 });
 
 function isLoggedIn() {
-  // Ganti 'session_id' sesuai nama cookie dari backend kamu
-  return document.cookie.split(';').some(c => c.trim().startsWith('session_id='));
+  return localStorage.getItem('isLoggedIn') === 'true';
 }
 
 // Tutup modal
@@ -213,36 +459,38 @@ window.addEventListener('click', function(e) {
 document.querySelector('.btn-masuk').onclick = () => showAuthModal('login');
 document.querySelector('.btn-daftar').onclick = () => showAuthModal('register');
 
-// Event untuk menampilkan form login, forgot password, dan register
-  function showLogin(e) {
-  e.preventDefault();
-  document.getElementById('form-login').style.display = '';
-  document.getElementById('form-forgot').style.display = 'none';
-  document.getElementById('form-register').style.display = 'none';
-}
-function showForgot(e) {
-  e.preventDefault();
-  document.getElementById('form-login').style.display = 'none';
-  document.getElementById('form-forgot').style.display = '';
-  document.getElementById('form-register').style.display = 'none';
-}
-function showRegister(e) {
-  e.preventDefault();
-  document.getElementById('form-login').style.display = 'none';
-  document.getElementById('form-forgot').style.display = 'none';
-  document.getElementById('form-register').style.display = '';
-}
-
 // Update UI based on login state
 function updateAuthUI() {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
   document.querySelector('.btn-masuk').style.display = isLoggedIn ? 'none' : '';
   document.querySelector('.btn-daftar').style.display = isLoggedIn ? 'none' : '';
   document.querySelector('.btn-profile').style.display = isLoggedIn ? '' : 'none';
+  document.getElementById('profileDropdown').style.display = 'none';
+
+  document.getElementById('btnAddMabarProfile').style.display = 'none';
+  document.querySelector('.eventku-dropdown').style.display = isLoggedIn ? '' : 'none';
 }
 
 // Panggil fungsi ini setelah login/logout dan saat halaman dimuat
 updateAuthUI();
+
+const btnEventDropdown = document.getElementById('btnEventDropdown');
+const eventDropdownMenu = document.getElementById('eventDropdownMenu');
+btnEventDropdown.onclick = function(e) {
+  e.stopPropagation();
+  dropdown.style.display = 'none';
+  eventDropdownMenu.style.display = eventDropdownMenu.style.display === 'none' ? 'block' : 'none';
+};
+document.addEventListener('click', function(e) {
+  if (!eventDropdownMenu.contains(e.target) && e.target !== btnEventDropdown) {
+    eventDropdownMenu.style.display = 'none';
+  }
+});
+
+document.getElementById('btnEventku').onclick = function() {
+  eventDropdownMenu.style.display = 'none';
+  showEventkuPage();
+};
 
 document.querySelector('.btn-profile').onclick = function() {
   if (confirm('Logout?')) {
@@ -257,6 +505,7 @@ const dropdown = document.getElementById('profileDropdown');
 // Toggle dropdown saat klik ikon profil
 btnProfile.onclick = function(e) {
   e.stopPropagation();
+  eventDropdownMenu.style.display = 'none';
   dropdown.style.display = dropdown.style.display === 'none' ? 'flex' : 'none';
 };
 
@@ -269,493 +518,1045 @@ document.addEventListener('click', function(e) {
 
 // Logout
 document.getElementById('btnLogout').onclick = function() {
+  dropdown.style.display = 'none';
   localStorage.removeItem('isLoggedIn');
   localStorage.removeItem('userEmail');
   dropdown.style.display = 'none';
   updateAuthUI();
 };
 
-// Profile dan Dashboard (contoh: alert, bisa diarahkan ke halaman lain)
-document.getElementById('btnProfile').onclick = function() {
-  alert('Fitur Profile belum tersedia.');
-  dropdown.style.display = 'none';
+const filterModal = document.getElementById('filterModal');
+const btnOpenFilterModal = document.getElementById('btnOpenFilterModal');
+const btnApplyFilter = document.getElementById('btnApplyFilter');
+const filterModalClose = document.getElementById('filterModalClose');
+
+btnOpenFilterModal.onclick = () => {
+  filterModal.style.display = 'flex';
 };
-document.getElementById('btnDashboard').onclick = function() {
-  alert('Fitur Dashboard belum tersedia.');
-  dropdown.style.display = 'none';
+filterModalClose.onclick = () => {
+  filterModal.style.display = 'none';
+};
+window.onclick = function(event) {
+  if (event.target === filterModal) filterModal.style.display = 'none';
 };
 
-  // Venue data
-  let venuesData = [];
-
-  function loadVenuesFromAPI() {
-    fetch('http://localhost:3000/api/venues')
-    .then(res => res.json())
-    .then(data => {
-      venuesData = data;
-      console.log(venuesData)
-      renderVenues();
-    })  
-    .catch(err => {
-      console.error('Gagal mengambil data venue:', err);
-    });
+document.getElementById('btnNextStep').onclick = function() {
+  // Validasi step 1
+  const form = document.getElementById('formCreateMabar');
+  if (!form.title.value || !form.sport.value) {
+    alert('Isi semua data pada step 1!');
+    return;
   }
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = '';
+};
 
-  loadVenuesFromAPI();
+document.getElementById('btnPrevStep2').onclick = function() {
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step1').style.display = '';
+};
 
-  // Main Bareng data
-  const mainbarengData = [
-  {
-    id: 1,
-    title: "Mabar Selasa Malam",
-    sport: "Badminton",
-    level: "Newbie - Pro",
-    datetime: "Sel, 03 Jun 2025, 19:00 - 22:00",
-    location: "Lapangan D - Bulu Bulu Badminton, Kota Tangerang Selatan",
-    bookedVia: true,
-    superhost: true,
-    participants: [
-      { name: "A", avatar: "https://randomuser.me/api/portraits/men/1.jpg" },
-      { name: "T", avatar: "https://randomuser.me/api/portraits/women/2.jpg" }
-    ],
-    quota: "14/15",
-    host: {
-      name: "Sobat Kalong",
-      rating: 4.93,
-      count: 17
-      }
-    }, 
-  ];
-
-  let lastVenueSearch = '';
-  let activeCategory = 'all';
-  let activeLocation = 'all';
-  let currentPage = 1;
-  const venuesPerPage = 6;
-
-  // Render venue cards
-  function createVenueCard(venue) {
-    const article = document.createElement('article');
-    article.className = 'venue-card';
-    article.setAttribute('data-category', venue.category);
-    article.setAttribute('data-location', venue.location);
-
-    const img = document.createElement('img');
-    img.className = 'venue-img';
-    img.src = venue.image;
-    img.alt = venue.title;
-
-    const infoDiv = document.createElement('div');
-    infoDiv.className = 'venue-info';
-
-    const title = document.createElement('h3');
-    title.className = 'venue-title';
-    title.textContent = venue.title;
-
-    const locationP = document.createElement('p');
-    locationP.className = 'venue-location';
-    locationP.textContent = capitalizeWords(venue.location);
-
-    // Rating stars
-    const ratingDiv = document.createElement('div');
-    ratingDiv.className = 'rating';
-    ratingDiv.setAttribute('aria-label', `Rating ${venue.rating} dari 5`);
-    const fullStars = Math.floor(venue.rating);
-    const halfStar = venue.rating - fullStars >= 0.5;
-    for (let i = 1; i <= 5; i++) {
-      const starSpan = document.createElement('span');
-      if (i <= fullStars) {
-        starSpan.textContent = '★';
-        starSpan.style.color = '#ffc107';
-      } else if (i === fullStars + 1 && halfStar) {
-        starSpan.textContent = '☆'; // half star substitute
-        starSpan.style.color = '#ffc107';
-      } else {
-        starSpan.textContent = '☆';
-        starSpan.style.color = '#ddd';
-      }
-      ratingDiv.appendChild(starSpan);
-    }
-    const ratingValue = document.createElement('div');
-    ratingValue.className = 'rating-value';
-    ratingValue.textContent = venue.rating.toFixed(1);
-    ratingDiv.appendChild(ratingValue);
-
-    // Meta info: price and capacity
-    const metaDiv = document.createElement('div');
-    metaDiv.className = 'venue-meta';
-
-    const priceSpan = document.createElement('span');
-    priceSpan.textContent = venue.price;
-
-    const capacitySpan = document.createElement('span');
-    capacitySpan.textContent = `Capacity: ${venue.capacity}`;
-
-    metaDiv.appendChild(priceSpan);
-    metaDiv.appendChild(capacitySpan);
-
-    // Availability badge
-    const availSpan = document.createElement('span');
-    availSpan.className = 'availability ' + (venue.availability ? 'available' : 'unavailable');
-    availSpan.textContent = venue.availability ? 'Available' : 'Unavailable';
-    availSpan.setAttribute('aria-label', venue.availability ? 'Tersedia' : 'Tidak tersedia');
-
-    // Description
-    const descP = document.createElement('p');
-    descP.className = 'venue-description';
-    descP.textContent = venue.description;
-
-    infoDiv.appendChild(title);
-    infoDiv.appendChild(locationP);
-    infoDiv.appendChild(ratingDiv);
-    infoDiv.appendChild(metaDiv);
-    infoDiv.appendChild(availSpan);
-    infoDiv.appendChild(descP);
-
-    article.appendChild(img);
-    article.appendChild(infoDiv);
-
-    article.addEventListener('click', () => {
-      showVenueDetail(venue);
-    });
-
-    return article;
-  }
-
-  // Render initial venues
-  function showVenueDetail(venue) {
-  document.querySelector('.venue-header-row').style.display = 'none';
-  document.getElementById('venuesGrid').style.display = 'none';
-  document.getElementById('paginationNav').style.display = 'none';
-
-  const container = document.getElementById('venueDetailContainer');
-  container.innerHTML = `
-    <div class="venue-detail-page">
-      <h1>${venue.title}</h1>
-      <div class="venue-detail-meta">
-        <span>⭐ ${venue.rating ?? '-'} &nbsp;•&nbsp; ${venue.location}</span>
-      </div>
-      <img src="${venue.image}" alt="${venue.title}" class="venue-detail-img">
-      <hr>
-      <h3>Deskripsi</h3>
-      <p>${venue.description ?? '-'}</p>
-      <h3>Aturan Venue</h3>
-      <ol>
-        <li>Pelanggan harus datang tepat waktu.</li>
-        <li>Dilarang membawa air mineral gelas.</li>
-        <li>Dilarang bersandar dijaring.</li>
-        <li>Dilarang membawa senjata tajam dan minuman keras.</li>
-        <li>Dilarang memakai sepatu berdempul.</li>
-      </ol>
-      <h3>Lokasi Venue</h3>
-      <div class="venue-detail-location">
-        Pd Pasar Jaya Pasar Baru Metro Atom Plaza Lt. 8 (Gedung Parkir) Jakarta Pusat
-      </div>
-      <h3>Fasilitas</h3>
-      <ul class="venue-detail-facilities">
-        <li>🍽️ Cafe & Resto</li>
-        <li>🍔 Jual Makanan Ringan</li>
-        <li>🥤 Jual Minuman</li>
-        <li>🕌 Musholla</li>
-        <li>🚗 Parkir Mobil</li>
-        <li>🏍️ Parkir Motor</li>
-      </ul>
-      <h3>Jadwal Lapangan</h3>
-      <button onclick="openBookingModal(${venue.id})" class="btn-cek-jadwal">Cek Jadwal Tersedia</button>
-      <button class="btn-kembali" onclick="backToVenueList()">Kembali ke daftar venue</button>
-    </div>
-  `;
+function hideAllSections() {
+  document.getElementById('profilePage').style.display = 'none';
+  document.getElementById('dashboardPage').style.display = 'none';
+  document.getElementById('mainBarengSection').style.display = 'none';
+  document.getElementById('formCreateMabar').style.display = 'none';
+  document.getElementById('eventkuPage').style.display = 'none';
+  document.querySelector('main').style.display = 'none';
 }
 
-let selectedVenueId = null;
+document.getElementById('btnAddMabarProfile').onclick = function() {
+  document.getElementById('profilePage').style.display = 'none';
+  document.getElementById('dashboardPage').style.display = 'none';
+  document.getElementById('mainBarengSection').style.display = 'none';
+  document.querySelector('main').style.display = '';
 
-// Open booking modal
-function openBookingModal(venueId) {
-  selectedVenueId = venueId;
-  document.getElementById('bookingModal').style.display = 'block';
-  document.body.style.overflow = 'hidden'; // Disable body scroll
-  // Tampilkan semua jadwal
-  let html = '';
-  jadwalLapangan.forEach(jadwal => {
-    html += `
-      <div class="jadwal-card">
-        <div class="jadwal-waktu"><b>${jadwal.start} - ${jadwal.end}</b></div>
-        <div class="jadwal-harga">${jadwal.price}</div>
-        <button class="btn-booking" onclick="bookSlot('${jadwal.start}', '${jadwal.end}')">Booking</button>
+  // Simpan section terakhir sebelum create event
+  if (document.getElementById('mainBarengSection').style.display !== 'none') {
+    setLastSection('mainbareng');
+    resetFormCreateMabar(); 
+    document.getElementById('formCreateMabar').style.display = '';
+    window.scrollTo({top: 0, behavior: 'smooth'});
+};
+}
+
+document.querySelector('.btn-cancel').onclick = function(e) {
+  e.preventDefault();
+  document.getElementById('formCreateMabar').style.display = 'none';
+  document.getElementById('mainBarengSection').style.display = '';
+  document.querySelector('main').style.display = '';
+  document.getElementById('mainbarengGrid').style.display = '';
+  document.getElementById('mainbarengCount').style.display = '';
+  document.getElementById('mainbarengDetailContainer').style.display = 'none';
+  const filterRow = document.querySelector('.mainbareng-filter-row');
+  if (filterRow) filterRow.style.display = 'flex';
+
+  // Refresh list
+  fetchAndRenderMainBareng();
+};
+
+function showDashboardPage() {
+  hideAllSections();
+  document.getElementById('dashboardPage').style.display = '';
+
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    alert('Anda harus login untuk melihat dashboard.');
+    return;
+  }
+
+  fetchAndRenderDashboardMainbareng();
+}
+
+async function fetchAndRenderDashboardMainbareng() {
+  const userId = localStorage.getItem('userId');
+  if (!userId) return;
+
+  const res = await fetch(`http://localhost:3000/api/mainbareng/user/${userId}`);
+  const result = await res.json();
+  const now = new Date();
+
+  window.dashboardEventsData = (result.data || []).filter(item => {
+    if (mainbarengStatusFilter !== 'all' && item.participant_status !== mainbarengStatusFilter) {
+      return false;
+    }
+    return true;
+  });
+
+  filterDashboardEvents();
+}
+
+async function showEventkuPage() {
+  hideAllSections();
+  document.getElementById('eventkuPage').style.display = '';
+
+  // Ambil userId
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    alert('Anda harus login untuk melihat event Anda.');
+    return;
+  }
+
+  // Ambil event yang dibuat user atau diikuti user
+  const res = await fetch('http://localhost:3000/api/mainbareng');
+  const result = await res.json();
+  const myEvents = (result.data || []).filter(event =>
+    String(event.host_id) === String(userId) ||
+    (event.participants && event.participants.includes(userId))
+  );
+
+  const container = document.getElementById('eventkuList');
+  container.innerHTML = '';
+
+  if (!myEvents.length) {
+    container.innerHTML = '<p style="text-align:center;margin-top:40px;">Kamu belum mengikuti event apapun.</p>';
+    return;
+  }
+
+  const now = new Date();
+
+  container.innerHTML = myEvents.map(event => {
+    const startDate = new Date(event.datetime);
+    const duration = Number(event.duration_hours) || 2;
+    const endDate = new Date(startDate.getTime() + duration * 60 * 60 * 1000);
+
+    let isFinished = false;
+    if (typeof event.finished !== 'undefined') {
+      isFinished = !!event.finished;
+    } else {
+      isFinished = now > endDate;
+    }
+
+    const isHost = String(event.host_id) === String(userId);
+    const canMarkFinished = isHost && !isFinished && now >= endDate;
+
+    const status = isFinished ? 'Selesai' : 'Belum Selesai';
+    const statusColor = isFinished ? '#43a047' : '#b71c1c';
+
+    const formatTime = d => d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}).replace(':', '.');
+    const timeRange = `${formatTime(startDate)} - ${formatTime(endDate)}`;
+    const tanggalLengkap = `${startDate.toLocaleDateString('id-ID', {weekday:'short', day:'2-digit', month:'short', year:'numeric'})} ${timeRange}`;
+
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #eee;">
+        <div>
+          <div style="font-weight:600;font-size:1.08rem;">${event.title}</div>
+          <div style="color:#666;font-size:0.98rem;">${tanggalLengkap}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+          <span style="font-size:1rem;font-weight:500;margin-left:24px;color:${statusColor};background:none;padding:0;">${status}</span>
+          ${canMarkFinished ? `<button class="btn-mark-finished" data-id="${event.id}" style="margin-top:8px;padding:6px 18px;border-radius:6px;background:#43a047;color:#fff;border:none;font-size:0.98rem;cursor:pointer;">Tandai Selesai</button>` : ''}
+        </div>
       </div>
     `;
+  }).join('');
+
+  // Event listener untuk tombol "Tandai Selesai"
+  container.querySelectorAll('.btn-mark-finished').forEach(btn => {
+    btn.onclick = async function() {
+      const eventId = this.getAttribute('data-id');
+      await fetch(`http://localhost:3000/api/mainbareng/${eventId}/finish`, { method: 'POST' });
+      alert('Event ditandai selesai!');
+      showEventkuPage(); // refresh
+    };
   });
-  document.getElementById('scheduleSlots').innerHTML = html;
+
+  const statusLabel = document.getElementById('eventkuStatusLabel');
+  statusLabel.style.textAlign = 'center';
+  statusLabel.style.display = '';
 }
 
-document.getElementById('scheduleSlots').onclick = function(e) {
-  if (e.target.classList.contains('btn-booking')) {
-    if (!isLoggedIn()) {
-      document.getElementById('notifLogin').style.display = 'block';
-      return;
-    }
-    const card = e.target.closest('.jadwal-card');
-    const waktu = card.querySelector('.jadwal-waktu').innerText;
-    // Lakukan aksi booking di sini, misal:
-    alert('Booking untuk: ' + waktu);
+// Profile
+document.getElementById('btnProfile').onclick = function() {
+  dropdown.style.display = 'none';
+  hideAllSections();
+  document.getElementById('formCreateMabar').style.display = 'none';
+  document.getElementById('profilePage').style.display = '';
+
+  // Ambil email user dari localStorage (atau session/cookie)
+  const email = localStorage.getItem('userEmail');
+  if (!email) {
+    alert('User tidak ditemukan!');
+    return;
   }
+
+  fetch('http://localhost:3000/api/profile', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ email })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('editNama').value = data.user.nama || '';
+      document.getElementById('editUsername').value = data.user.username || '';
+      document.getElementById('editPonsel').value = data.user.ponsel || '';
+      document.getElementById('editEmail').value = data.user.email || '';
+    } else {
+      alert('Gagal mengambil data diri');
+    }
+  });
+}
+
+// Prefill data user ke form
+function showEditProfile(user) {
+  document.getElementById('editNama').value = user.nama || '';
+  document.getElementById('editUsername').value = user.username || '';
+  document.getElementById('editPonsel').value = user.ponsel || '';
+  document.getElementById('editEmail').value = user.email || '';
+  document.getElementById('editProfileForm').style.display = '';
+}
+
+// Submit perubahan data diri
+document.getElementById('editProfileForm').onsubmit = function(e) {
+  e.preventDefault();
+  const data = {
+    nama: document.getElementById('editNama').value,
+    username: document.getElementById('editUsername').value,
+    ponsel: document.getElementById('editPonsel').value,
+    email: document.getElementById('editEmail').value
+  };
+  fetch('http://localhost:3000/api/profile/update', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(res => {
+    alert(res.success ? 'Data berhasil diubah!' : (res.message || 'Gagal mengubah data'));
+  });
 };
+
+document.getElementById('btnGoBackProfile').onclick = function() {
+  goToLastSection();
+};
+
+document.getElementById('btnDashboard').onclick = function() {
+  dropdown.style.display = 'none'; 
+  hideAllSections();
+
+  document.getElementById('formCreateMabar').style.display = 'none';
+  document.getElementById('dashboardPage').style.display = '';
+  document.getElementById('profilePage').style.display = 'none';
+  document.querySelector('main').style.display = 'none';
+  document.getElementById('mainbarengGrid').style.display = '';
+  dropdown.style.display = 'none';
+
+  fetchAndRenderDashboardMainbareng();
+}
+
+function filterDashboardEvents() {
+  const name = document.getElementById('searchEventName').value.toLowerCase();
+  const date = document.getElementById('searchEventDate').value;
+  const cabor = selectedCabor;
+  const status = mainbarengStatusFilter;
+
+  let filtered = (window.dashboardEventsData || []).filter(ev => {
+    // Filter judul
+    const matchName = !name || ev.title.toLowerCase().includes(name);
+    // Filter tanggal
+    const matchDate = !date || ev.datetime.startsWith(date);
+    // Filter cabor
+    const matchCabor = !cabor || ev.sport === cabor;
+    // Filter status
+    if (status !== 'all' && ev.participant_status !== status) return false;
+    return matchName && matchDate && matchCabor;
+  });
+
+  renderMainBarengList(filtered);
+}
+
+// Event listener
+document.getElementById('searchEventName').addEventListener('input', filterDashboardEvents);
+document.getElementById('searchEventDate').addEventListener('change', filterDashboardEvents);
+
+const btn = document.getElementById('dropdownCaborBtn');
+const list = document.getElementById('dropdownCaborList');
+const label = document.getElementById('dropdownCaborLabel');
+let selectedCabor = '';
+
+btn.onclick = function(e) {
+  e.stopPropagation();
+  list.style.display = list.style.display === 'block' ? 'none' : 'block';
+};
+
+document.querySelectorAll('.dropdown-cabor-item').forEach(item => {
+  item.onclick = function(e) {
+    e.stopPropagation();
+    selectedCabor = this.getAttribute('data-value');
+    label.textContent = this.textContent;
+    document.querySelectorAll('.dropdown-cabor-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+    list.style.display = 'none';
+    filterDashboardEvents();
+  };
+});
+
+// Tutup dropdown jika klik di luar
+document.addEventListener('click', function(e) {
+  list.style.display = 'none';
+});
+
 
 document.getElementById('notifLoginClose').onclick = function() {
   document.getElementById('notifLogin').style.display = 'none';
   showAuthModal('login');
 };
 
-function closeBookingModal() {
-  document.getElementById('bookingModal').style.display = 'none';
-  document.body.style.overflow = ''; // Enable body scroll
-}
-
-// Function to load schedule for selected venue
-function loadSchedule() {
-  const date = document.getElementById('bookingDate').value;
-  if (!date) return;
-  fetch(`http://localhost:3000/api/schedule?venueId=${selectedVenueId}&date=${date}`)
-    .then(res => res.json())
-    .then(slots => {
-      // slots = [{time: "07:00-08:00", booked: false}, ...]
-      let html = '';
-      slots.forEach(slot => {
-        html += `<button ${slot.booked ? 'disabled' : ''} onclick="bookSlot('${slot.time}')">
-          ${slot.time} ${slot.booked ? '(Booked)' : ''}
-        </button>`;
-      });
-      document.getElementById('scheduleSlots').innerHTML = html;
-    });
-}
-
-// Function to book a slot
-function bookSlot(time) {
-  const date = document.getElementById('bookingDate').value;
-  fetch('http://localhost:3000/api/book', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({venueId: selectedVenueId, date, time})
-  })
-  .then(res => res.json())
-  .then(result => {
-    alert(result.message);
-    loadSchedule(); // refresh slot
-  });
-}
-
-// Function to go back to the venue list
-function backToVenueList() {
-  document.getElementById('venueDetailContainer').innerHTML = '';
-  document.getElementById('venuesGrid').style.display = '';
-  document.getElementById('paginationNav').style.display = '';
-  document.querySelector('.venue-header-row').style.display = '';
-  document.getElementById('mainbarengGrid').style.display = 'none';
-  document.getElementById('mainbarengTitle').style.display = 'none';
-  closeBookingModal();
-}
-
 document.querySelectorAll('.btn-menu').forEach(btn => {
   btn.addEventListener('click', function() {
-    setActiveMenu(this);
-    if (this.textContent.trim() === 'Sewa Lapangan') {
-      backToVenueList();
+    // Hanya set jika benar-benar pindah section utama
+    if (this.textContent.trim() === 'Main Bareng') {
+      setLastSection('mainbareng');
+      hideAllSections();
+      backToMainBarengList();
+      document.getElementById('mainBarengSection').style.display = '';
+      fetchAndRenderMainBareng();
     }
+    document.getElementById('profilePage').style.display = 'none';
+    document.getElementById('dashboardPage').style.display = 'none';
+    document.getElementById('eventkuPage').style.display = 'none';
+    document.querySelector('main').style.display = '';
+    setActiveMenu(this);
   });
 });
 
-  // Render main bareng events
-  function renderMainBareng() {
-  const container = document.getElementById('mainbarengGrid');
-  container.innerHTML = '';
-  const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-  const filtered = mainbarengData.filter(event =>
-    event.title.toLowerCase().includes(searchTerm)
-  );
+// Gunakan lokasiIndonesia autocomplete
+const mainbarengLocationInput = document.getElementById('mainbarengLocationAutocomplete');
+const mainbarengSuggestionsList = document.getElementById('mainbarengLocationSuggestions');
 
-  if (filtered.length === 0) {
-    container.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; color:#888; user-select:none;">Event tidak ditemukan.</p>';
-    return;
+document.querySelectorAll('#filterMetodeGroup .filter-btn-option').forEach(btn => {
+  btn.onclick = function() {
+    this.classList.toggle('active');
+  };
+});
+
+document.querySelectorAll('#filterWaktuGroup .filter-btn-option').forEach(btn => {
+  btn.onclick = function() {
+    this.classList.toggle('active');
+  };
+});
+
+btnApplyFilter.onclick = function() {
+  window.selectedFilterMetode = Array.from(document.querySelectorAll('#filterMetodeGroup .filter-btn-option.active')).map(btn => btn.dataset.value);
+  window.selectedFilterWaktu = Array.from(document.querySelectorAll('#filterWaktuGroup .filter-btn-option.active')).map(btn => btn.dataset.value);
+  filterModal.style.display = 'none';
+  filterMainbareng();
+};
+
+function filterMainbareng() {
+  const lokasi = document.getElementById('mainbarengLocationAutocomplete').value.trim();
+  window.selectedMainbarengLocation = lokasi;
+  fetchAndRenderMainBareng();
+}
+
+// Sembunyikan dropdown jika klik di luar
+document.addEventListener('click', function(event) {
+  if (!mainbarengLocationInput.contains(event.target) && !mainbarengSuggestionsList.contains(event.target)) {
+    mainbarengSuggestionsList.innerHTML = '';
   }
-  
-  filtered.forEach(event => {
-    const card = document.createElement('div');
-    card.className = 'mainbareng-card';
-    card.innerHTML = `
-      <div class="mainbareng-header">
-        <strong>${event.title}</strong>
-        <span class="mainbareng-meta">
-          <span>${event.sport}</span> &bull; <span>${event.level}</span>
-        </span>
-        <div class="mainbareng-time">${event.datetime}</div>
-        <div class="mainbareng-location">${event.location}</div>
-        <div class="mainbareng-badges">
-          ${event.bookedVia ? '<span class="badge booked">Booked via AYO</span>' : ''}
-          ${event.superhost ? '<span class="badge superhost">Superhost</span>' : ''}
-        </div>
-        <div class="mainbareng-participants">
-          ${event.participants.map(p => `<img src="${p.avatar}" alt="${p.name}" class="avatar" title="${p.name}">`).join('')}
-          <span class="quota">${event.quota}</span>
-        </div>
-        <div class="mainbareng-host">
-          <span>${event.host.name}</span>
-          <span class="host-rating">★ ${event.host.rating} (${event.host.count})</span>
-        </div>
+});
+
+// Fungsi filter event main bareng berdasarkan lokasi
+function filterMainbarengByLocation(lokasi) {
+  // Simpan lokasi terpilih, lalu fetch ulang data main bareng
+  window.selectedMainbarengLocation = lokasi;
+  fetchAndRenderMainBareng();
+}
+
+  function skillLabel(val) {
+  switch (parseInt(val)) {
+    case 1: return 'Newbie';
+    case 2: return 'Beginner';
+    case 3: return 'Intermediate';
+    case 4: return 'Advanced';
+    case 5: return 'Pro';
+    default: return '';
+  }
+}
+function skillColor(val) {
+  switch (parseInt(val)) {
+    case 1: return '#2196f3'; // blue
+    case 2: return '#4caf50'; // green
+    case 3: return '#ffeb3b'; // yellow
+    case 4: return '#ff9800'; // orange
+    case 5: return '#f44336'; // red
+    default: return '#2196f3';
+  }
+}
+function updateSkillBar(rangeElem, labelId) {
+  const val = rangeElem.value;
+  document.getElementById(labelId).textContent = skillLabel(val);
+  rangeElem.style.accentColor = skillColor(val);
+}
+
+// Set label dan warna awal saat halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+  const minSkill = document.getElementById('minSkillRange');
+  const maxSkill = document.getElementById('maxSkillRange');
+  if (minSkill) updateSkillBar(minSkill, 'minSkillValue');
+  if (maxSkill) updateSkillBar(maxSkill, 'maxSkillValue');
+});
+
+  let Filter = 'all';
+
+document.getElementById('btnBuatEvent').onclick = function() {
+  eventDropdownMenu.style.display = 'none';
+  hideAllSections();
+  document.getElementById('formCreateMabar').style.display = '';
+  document.querySelector('main').style.display = 'none';
+  resetFormCreateMabar();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+};
+
+document.querySelectorAll('.status-filter-btn').forEach(btn => {
+  btn.onclick = function() {
+    document.querySelectorAll('.status-filter-btn').forEach(b => {
+      b.classList.remove('active');
+    });
+    this.classList.add('active');
+    mainbarengStatusFilter = this.dataset.status || 'all';
+    fetchAndRenderDashboardMainbareng();
+  };
+});
+
+  async function fetchAndRenderMainBareng() {
+  console.log('fetchandrenderMainBareng called');
+  const res = await fetch('http://localhost:3000/api/mainbareng');
+  const result = await res.json();
+  const grid = document.getElementById('mainbarengGrid');
+
+  grid.innerHTML = '';
+  let data = (result && result.data) ? result.data : [];
+
+  if (window.selectedMainbarengLocation && window.selectedMainbarengLocation.length > 0) {
+    const lokasiLower = window.selectedMainbarengLocation.toLowerCase();
+    data = data.filter(item =>
+      (item.location || '').toLowerCase().includes(lokasiLower)
+    );
+  }
+
+  if (window.selectedFilterMetode && window.selectedFilterMetode.length > 0) {
+  data = data.filter(item =>
+    window.selectedFilterMetode.some(val => {
+      const method = (item.payment_method || item.paymentMethod || '').toLowerCase();
+      if (val === 'online') return method === 'online' || method === 'online_tunai';
+      if (val === 'tunai') return method === 'tunai' || method === 'online_tunai';
+      return method === val.toLowerCase();
+    })
+  );
+}
+
+if (window.selectedFilterWaktu && window.selectedFilterWaktu.length > 0) {
+  data = data.filter(item => {
+    if (window.selectedFilterWaktu.includes('')) return true;
+    const jam = new Date(item.datetime).getHours();
+    return window.selectedFilterWaktu.some(waktu => {
+      if (waktu === 'pagi') return jam >= 7 && jam <= 10;
+      if (waktu === 'siang') return jam >= 11 && jam <= 14;
+      if (waktu === 'sore') return jam >= 15 && jam <= 18;
+      if (waktu === 'malam') return jam >= 19 && jam <= 22;
+      return false;
+    });
+  });
+}
+
+const searchInput = document.getElementById('globalEventSearchInput');
+  const searchKeyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
+  if (searchKeyword.length > 0) {
+    data = data.filter(item =>
+      (item.title || '').toLowerCase().includes(searchKeyword)
+    );
+  }
+
+  if (!result.success || !data || data.length === 0) {
+    grid.innerHTML = `
+      <div class="mainbareng-empty-state">
+        <img src="https://img.icons8.com/ios/100/cccccc/document--v1.png" width="80" alt="empty" style="margin-bottom:18px;opacity:0.5;">
+        <div style="font-weight:600;font-size:1.1rem;margin-bottom:8px;">Tidak ada event main bareng saat ini.</div>
       </div>
     `;
-    container.appendChild(card);
+    grid.style.display = 'flex';
+    grid.style.flexDirection = 'column';
+    grid.style.justifyContent = 'center';
+    grid.style.alignItems = 'center';
+    grid.style.minHeight = '60vh';
+    document.getElementById('mainbarengCount').innerHTML = `<span style="color:#bbb;font-weight:400;">Menampilkan</span> <b>0 event mabar</b>`;
+    return;
+  }
+
+grid.style.display = '';
+grid.style.flexDirection = '';
+grid.style.justifyContent = '';
+grid.style.alignItems = '';
+grid.style.minHeight = '';
+
+  document.getElementById('mainbarengCount').innerHTML = `<span style="color:#bbb;font-weight:400;">Menampilkan</span> <b>${data.length} event mabar`;
+
+  data.forEach(item => {
+  const slotFilled = Number(item.slot_filled) || 0;
+  const quota = Number(item.quota) || 0;
+
+  let sportEmoji = '';
+  let sportIconColor = '#e04bb6';
+  let dateIconColor = '#6c63ff';
+  let locationIconColor = '#e63946';
+
+  switch ((item.sport || '').toLowerCase()) {
+    case 'futsal': sportEmoji = '🥅'; break;
+    case 'badminton': sportEmoji = '🏸'; break;
+    case 'basket': sportEmoji = '🏀'; break;
+    case 'voli': sportEmoji = '🏐'; break;
+    case 'sepak bola': sportEmoji = '⚽'; break;
+    case 'billiard': sportEmoji = '🎱'; break;
+    case 'tenis meja': sportEmoji = '🎾'; break;
+    default: sportEmoji = '🏅';
+  }
+
+  const startDate = new Date(item.datetime);
+  const duration = Number(item.duration_hours) || 2; // default 2 jam jika tidak ada
+  const endDate = new Date(startDate.getTime() + duration * 60 * 60 * 1000);
+
+  const formatTime = d => d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}).replace(':', '.');
+  const timeRange = `${formatTime(startDate)} - ${formatTime(endDate)}`;
+
+    grid.innerHTML += `
+    <div class="mainbareng-card" data-id="${item.id}">
+      <div class="mainbareng-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div style="flex:1;">
+          <strong>${item.title}</strong>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px;padding-left:0;">
+            <span style="display:inline-block;width:22px;text-align:center;font-size:1.1em;color:${sportIconColor};margin-right:0px;">${sportEmoji}</span>
+            <span style="color:#222;font-size:1rem;">${item.sport}</span>
+            <span style="color:#222;">• ${item.min_skill} - ${item.max_skill}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+            <span style="display:inline-flex;align-items:center;">
+              <span style="font-size:1.1em;color:${dateIconColor};margin-right:6px;">📅</span>
+              <span style="color:#222;">
+                ${startDate.toLocaleDateString('id-ID', {weekday:'short', day:'2-digit', month:'short', year:'numeric'})}
+              </span>
+            </span>
+            <span style="color:#222;">${timeRange}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+            <span style="display:inline-flex;align-items:center;">
+            <span style="font-size:1.1em;color:${locationIconColor};margin-right:6px;">📍</span>
+            <span>${detectWilayah(item.location)}</span>
+            </span>
+          </div>
+        </div>
+        <div class="mainbareng-quota" style="margin-left:16px;">
+          <span class="badge booked" style="background:#43a047;color:#fff;font-weight:700;font-size:1rem;padding:4px 12px;">
+            ${slotFilled}/${quota} orang
+          </span>
+        </div>
+      </div>
+      <div class="mainbareng-host" style="margin-top:12px;">
+        Host: <b>${item.host_username || '-'}</b>
+      </div>
+    </div>
+    `;
   });
+
+  document.querySelectorAll('.mainbareng-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+      if (e.target.classList.contains('btn-create-event')) return;
+      const id = this.getAttribute('data-id');
+      if (!id) return;
+      showMainBarengDetail(id);
+    });
+  });
+}
+
+function renderMainBarengList(list) {
+  const container = document.getElementById('dashboardMainbarengGrid');
+  container.innerHTML = '';
+
+  if (!list.length) {
+    container.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;margin-top:40px;">
+        <img src="https://img.icons8.com/ios/100/cccccc/document--v1.png" width="80" alt="empty" style="margin-bottom:18px;opacity:0.5;">
+        <div style="font-weight:600;font-size:1.1rem;margin-bottom:8px;">Belum ada Main bareng</div>
+      </div>
+    `;
+    return;
+  }
+
+  list.forEach(item => {
+    const startDate = new Date(item.datetime);
+    const duration = Number(item.duration_hours) || 2;
+    const endDate = new Date(startDate.getTime() + duration * 60 * 60 * 1000);
+    const formatTime = d => d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}).replace(':', '.');
+    const timeRange = `${formatTime(startDate)} - ${formatTime(endDate)}`;
+    const tanggalLengkap = `${startDate.toLocaleDateString('id-ID', {weekday:'short', day:'2-digit', month:'short', year:'numeric'})} ${timeRange}`;
+
+    let sportEmoji = '';
+    switch ((item.sport || '').toLowerCase()) {
+      case 'futsal': sportEmoji = '🥅'; break;
+      case 'badminton': sportEmoji = '🏸'; break;
+      case 'basket': sportEmoji = '🏀'; break;
+      case 'voli': sportEmoji = '🏐'; break;
+      case 'sepak bola': sportEmoji = '⚽'; break;
+      case 'billiard': sportEmoji = '🎱'; break;
+      case 'tenis meja': sportEmoji = '🎾'; break;
+      default: sportEmoji = '🏅';
+    }
+
+    container.innerHTML = `
+    <ul style="list-style:none;padding:0;margin:0;">
+      ${list.map(item => {
+        const startDate = new Date(item.datetime);
+        const duration = Number(item.duration_hours) || 2;
+        const endDate = new Date(startDate.getTime() + duration * 60 * 60 * 1000);
+        const formatTime = d => d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}).replace(':', '.');
+        const timeRange = `${formatTime(startDate)} - ${formatTime(endDate)}`;
+        const tanggalLengkap = `${startDate.toLocaleDateString('id-ID', {weekday:'short', day:'2-digit', month:'short', year:'numeric'})} ${timeRange}`;
+        // Tambahkan jenis olahraga di atas tanggal
+        return `
+          <li style="padding:14px 0;border-bottom:1px solid #eee;cursor:pointer;" data-id="${item.id}">
+            <div style="font-weight:600;font-size:1.08rem;">${item.title}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;color:#666;font-size:0.98rem;">
+              <span>${tanggalLengkap}</span>
+              <span style="font-weight:600;color:#333;margin-left:32px;min-width:100px;text-align:right;">${item.sport}</span>
+            </div>
+          </li>
+        `;
+      }).join('')}
+    </ul>
+  `;
+
+  container.querySelectorAll('li[data-id]').forEach(li => {
+    li.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      if (!id) return;
+      showMainBarengDetail(id);
+    });
+  });
+  });
+}
+
+function showMainBarengDetail(id) {
+  document.getElementById('mainbarengGrid').style.display = 'none';
+  document.getElementById('mainbarengCount').style.display = 'none';
+  document.querySelector('.mainbareng-filter-row').style.display = 'none';
+
+  const detailContainer = document.getElementById('mainbarengDetailContainer');
+  detailContainer.style.display = '';
+  detailContainer.innerHTML = '<p>Memuat...</p>';
+
+  fetch(`http://localhost:3000/api/mainbareng/${id}`)
+    .then(res => res.json())
+    .then(result => {
+      if (!result.success) {
+        detailContainer.innerHTML = '<p>Event tidak ditemukan.</p>';
+        return;
+      }
+
+      const item = result.data;
+      const hargaPerPeserta = item.price_per_participant || 0;
+      const metodePembayaran = labelMetodePembayaran(item.payment_method);
+      const quota = Number(item.quota) || 0;
+      const slotFilled = Number(item.slot_filled) || 0;
+      const slotTersisa = Math.max(quota - slotFilled, 0);
+
+      let metodeButtons = '';
+      if (item.payment_method == 'online_tunai') {
+    // Online & Tunai
+    metodeButtons = `
+      <button type="button" class="btn-metode-pembayaran" id="btnOnline" style="border:1.5px solid #b71c1c;background:#fff;color:#b71c1c;padding:6px 18px;border-radius:6px;font-weight:500;">Online</button>
+      <button type="button" class="btn-metode-pembayaran" id="btnTunai" style="border:1.5px solid #bbb;background:#fff;color:#222;padding:6px 18px;border-radius:6px;font-weight:500;">Tunai</button>
+    `;
+  } else if (item.payment_method == 'online') {
+    // Online saja
+    metodeButtons = `
+      <button type="button" class="btn-metode-pembayaran" id="btnOnline" style="border:1.5px solid #b71c1c;background:#fff;color:#b71c1c;padding:6px 18px;border-radius:6px;font-weight:500;">Online</button>
+    `;
+  } else if (item.payment_method == 'tunai') {
+    // Tunai saja
+    metodeButtons = `
+      <button type="button" class="btn-metode-pembayaran" id="btnTunai" style="border:1.5px solid #b71c1c;background:#fff;color:#b71c1c;padding:6px 18px;border-radius:6px;font-weight:500;">Tunai</button>
+    `;
+  }
+
+  if (item.host_id == localStorage.getItem('userId')) {
+    // Sembunyikan tombol gabung host
+  } else {
+    // tampilkan tombol gabung
+  }
+
+      const startDate = new Date(item.datetime);
+      const duration = Number(item.duration_hours) || 2;
+      const endDate = new Date(startDate.getTime() + duration * 60 * 60 * 1000);
+      const formatTime = d => d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}).replace(':', '.');
+      const timeRange = `${formatTime(startDate)} - ${formatTime(endDate)}`;
+      const tanggalLengkap = `${startDate.toLocaleDateString('id-ID', {weekday:'short', day:'2-digit', month:'short', year:'numeric'})} ${timeRange}`;
+
+      detailContainer.innerHTML = `
+      <div class="mainbareng-detail-layout">
+    <div class="mainbareng-detail-main">
+      <h1 style="font-size:2rem;margin-bottom:18px;">${item.title}</h1>
+      <div style="margin-bottom:18px;">
+        <b>${item.sport}</b> &nbsp;•&nbsp; ${item.min_skill} - ${item.max_skill}
+      </div>
+      <section class="mainbareng-detail-section" style="margin-bottom:32px;">
+        <h2 style="font-size:1.3rem;color:#b71c1c;margin-bottom:8px;display:flex;align-items:center;">
+          Tentang Mabar
+        </h2>
+        <div class="mainbareng-detail-desc" style="margin-left:0;">
+          ${item.description ? item.description.replace(/\n/g, '<br>') : '<i>Belum ada deskripsi.</i>'}
+        </div>
+      </section>
+      <section class="mainbareng-detail-section">
+        <h2 style="font-size:1.3rem;color:#b71c1c;margin-bottom:8px;display:flex;align-items:center;">Lokasi</h2>
+        <div class="mainbareng-detail-location" style="margin-left:0px;">
+          ${item.location}
+        </div>
+      </section>
+    </div>
+    <aside class="mainbareng-detail-aside">
+      <div class="mainbareng-card-mabar">
+        <h3>Info Event</h3>
+        <div class="mainbareng-detail-info">
+          <div style="margin-bottom:18px;">
+            <b>Metode Pembayaran</b><br>
+            <span>${metodePembayaran}</span>
+          </div>
+          <div style="margin-bottom:18px;">
+            <b>Waktu & Tanggal</b><br>
+            <span>${tanggalLengkap}</span>
+          </div>
+          <div style="margin-bottom:18px;">
+            <b>Host</b><br>
+            <span>${item.host_username || '-'}</span>
+          </div>
+          <!-- Pindahkan bagian ini ke bawah host -->
+          <div style="margin-bottom:18px;">
+            <b>Pilih metode pembayaran:</b><br>
+            <div style="display:flex;gap:8px;margin:8px 0 12px 0;">
+              ${metodeButtons}
+            </div>
+          </div>
+          <div style="margin-bottom:18px;">
+            <span style="font-size:1.5rem;font-weight:600;color:#222;">Rp${hargaPerPeserta.toLocaleString('id-ID')}</span>
+            <span style="color:#888;font-size:1rem;">/peserta</span>
+          </div>
+          <div style="margin-bottom:10px;">
+            <span style="color:#d32f2f;font-size:1rem;">Tersisa ${slotTersisa} slot!</span>
+          </div>
+          <div style="margin-top:28px;">
+            <button class="btn-gabung-mabar" onclick="gabungMainBareng(${item.id})" style="width:100%;padding:12px 0;background:#b71c1c;color:#fff;font-weight:600;border:none;border-radius:8px;font-size:1.08rem;cursor:pointer;">Gabung Main Bareng</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+      `;
+    });
+
+    setTimeout(() => {
+        const btnOnline = document.getElementById('btnOnline');
+        const btnTunai = document.getElementById('btnTunai');
+        if (btnOnline && btnTunai) {
+          btnOnline.onclick = () => {
+            btnOnline.style.borderColor = '#b71c1c';
+            btnOnline.style.color = '#b71c1c';
+            btnTunai.style.borderColor = '#bbb';
+            btnTunai.style.color = '#222';
+          };
+          btnTunai.onclick = () => {
+            btnTunai.style.borderColor = '#b71c1c';
+            btnTunai.style.color = '#b71c1c';
+            btnOnline.style.borderColor = '#bbb';
+            btnOnline.style.color = '#222';
+          };
+        }
+      }, 100);
+}
+
+function labelMetodePembayaran(val) {
+  switch (val) {
+    case 'online_tunai': return 'Online & Tunai';
+    case 'online': return 'Online';
+    case 'tunai': return 'Tunai';
+    default: return '-';
+  }
+}
+
+function gabungMainBareng(eventId) {
+  const userId = localStorage.getItem('userId');
+  console.log('Gabung event:', { eventId, userId });
+  if (!userId) {
+    alert('Anda harus login untuk join event.');
+    return;
+  }
+
+  showSkillModal(eventId, userId);
+}
+
+function showSkillModal(eventId, userId) {
+  const modal = document.getElementById('skillModal');
+  modal.style.display = 'flex';
+
+  // Reset
+  document.querySelectorAll('.skill-option').forEach(opt => opt.classList.remove('selected'));
+  document.querySelectorAll('input[name="skill"]').forEach(r => r.checked = false);
+  const btn = document.getElementById('btnSkillOk');
+  btn.disabled = true;
+  btn.style.background = '#eee';
+  btn.style.color = '#aaa';
+  btn.style.cursor = 'not-allowed';
+
+  // Pilih skill
+  document.querySelectorAll('.skill-option').forEach(opt => {
+    opt.onclick = function() {
+      document.querySelectorAll('.skill-option').forEach(o => o.classList.remove('selected'));
+      this.classList.add('selected');
+      this.querySelector('input[type="radio"]').checked = true;
+      btn.disabled = false;
+      btn.style.background = '#2563eb';
+      btn.style.color = '#fff';
+      btn.style.cursor = 'pointer';
+    };
+  });
+
+  // Submit
+  document.getElementById('skillForm').onsubmit = function(e) {
+    e.preventDefault();
+    const skill = document.querySelector('input[name="skill"]:checked');
+    if (!skill) return;
+    btn.disabled = true;
+    btn.textContent = 'Memproses...';
+    fetch(`http://localhost:3000/api/mainbareng/${eventId}/join`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ user_id: userId, skill: skill.value })
+    })
+    .then(res => res.json())
+    .then(result => {
+      alert(result.message || (result.success ? 'Berhasil join event!' : 'Gagal join event'));
+      modal.style.display = 'none';
+      btn.textContent = 'Konfirmasi';
+      showMainBarengDetail(eventId);
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.textContent = 'Konfirmasi';
+    });
+  };
+}
+
+function closeSkillModal() {
+  document.getElementById('skillModal').style.display = 'none';
+}
+
+function backToMainBarengList() {
+  document.getElementById('mainbarengDetailContainer').style.display = 'none';
+  document.getElementById('mainbarengGrid').style.display = '';
+  document.getElementById('mainbarengCount').style.display = '';
+
+  const filterRow = document.querySelector('.mainbareng-filter-row');
+  if (filterRow) {
+    filterRow.style.display = 'flex';
+    filterRow.style.justifyContent = 'flex-end';
+    filterRow.style.alignItems = 'center';
+    filterRow.style.marginBottom = '24px';
+    filterRow.style.gap = '12px';
+    filterRow.style.marginTop = '100px';
+  }
+}
+
+document.getElementById('formCreateMabar').onsubmit = async function(e) {
+  e.preventDefault();
+
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    alert('Anda harus login untuk membuat event.');
+    return;
+  }
+
+  const form = e.target;
+  const data = {
+    title: form.title.value,
+    sport: form.sport.value,
+    min_skill: form.min_skill.value,
+    max_skill: form.max_skill.value,
+    datetime: form.datetime.value,
+    location: form.location.value,
+    quota: form.quota.value,
+    host_id: userId,
+    payment_method: form.paymentMethod.value,
+    description: form.description.value,
+    price_per_participant: form.price_per_participant.value,
+    duration_hours: form.duration_hours.value
+  };
+  console.log(form.title, form.title.value);
+
+  const res = await fetch('http://localhost:3000/api/mainbareng/create', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data)
+  });
+
+  const result = await res.json();
+  if (result.success) {
+    document.getElementById('formCreateMabar').style.display = 'none';
+    document.getElementById('mainBarengSection').style.display = '';
+    document.getElementById('mainbarengDetailContainer').style.display = 'none';
+    document.getElementById('mainbarengGrid').style.display = '';
+    
+    const filterRow = document.querySelector('.mainbareng-filter-row');
+    filterRow.style.display = 'flex';
+    filterRow.style.justifyContent = 'flex-end';
+    filterRow.style.alignItems = 'center';
+    filterRow.style.marginBottom = '24px';
+    filterRow.style.gap = '12px';
+    filterRow.style.marginTop = '100px';
+    document.getElementById('mainbarengCount').style.display = '';
+
+    fetchAndRenderMainBareng(); // refresh list
+    document.getElementById('eventSuccessModal').style.display = 'flex';
+  } else {
+    alert(result.message || 'Gagal membuat event');
+  }
+};
+
+document.getElementById('btnEventOk').onclick = function() {
+  document.getElementById('eventSuccessModal').style.display = 'none';
+  goToLastSection();
+};
+
+function resetFormCreateMabar() {
+  const form = document.getElementById('formCreateMabar');
+  form.reset();
+
+  // Tampilkan step 1, sembunyikan step 2
+  document.getElementById('step1').style.display = '';
+  document.getElementById('step2').style.display = 'none';
+
+  // Jika ada custom label/range, reset juga
+  const minSkill = document.getElementById('minSkillRange');
+  const maxSkill = document.getElementById('maxSkillRange');
+  if (minSkill) updateSkillBar(minSkill, 'minSkillValue');
+  if (maxSkill) updateSkillBar(maxSkill, 'maxSkillValue');
 }
 
   function capitalizeWords(str) {
     return str.replace(/\b\w/g, l => l.toUpperCase());
   }
 
-  // Filter lokasi
-  function filterVenues() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-    let filtered = venuesData.filter(v => {
-      // category filter
-      const categoryMatch = activeCategory === 'all' || v.category === activeCategory || v.eventTypes.includes(activeCategory);
-      // location filter
-      const locationMatch = activeLocation === 'all' || v.location === activeLocation;
-      // search filter
-      const searchMatch =
-        v.title.toLowerCase().includes(searchTerm) ||
-        v.location.toLowerCase().includes(searchTerm) ||
-        v.description.toLowerCase().includes(searchTerm);
-      return categoryMatch && locationMatch && searchMatch;
-    });
-    return filtered;
-  }
-
   // Set active menu button and update UI
   function setActiveMenu(btn) {
-    document.querySelectorAll('.btn-menu').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+  document.querySelectorAll('.btn-menu').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('formCreateMabar').style.display = 'none';
+  document.getElementById('mainBarengSection').style.display = '';
+  document.getElementById('mainbarengGrid').style.display = '';
+  fetchAndRenderMainBareng();
+}
 
-    const isMainBareng = btn.textContent.trim() === 'Main Bareng';
-    const searchInput = document.getElementById('searchInput');
+let allWilayah = {};
 
-    searchInput.placeholder = isMainBareng ? 'Cari Event' : 'Cari Venue';
+fetch('wilayah_detail.json')
+  .then(res => res.json())
+  .then(data => {
+    allWilayah = data;
+    window.allWilayah = allWilayah;
+    initAutocomplete();
+  })
 
-    if (isMainBareng) {
-      lastVenueSearch = searchInput.value;
-      searchInput.value = '';
-      document.getElementById('venueDetailContainer').innerHTML = '';
-    } else {
-      searchInput.value = lastVenueSearch;
-    }
+  // Fungsi untuk deteksi wilayah
+function detectWilayah(alamat) {
+  if (!alamat || !window.allWilayah) return '-';
+  const alamatLower = alamat.toLowerCase();
 
-    document.getElementById('venueTitle').style.display = isMainBareng ? 'none' : '';
-    document.getElementById('mainbarengTitle').style.display = isMainBareng ? '' : 'none';
+  let kecamatan = '';
+  let kotaKab = '';
+  let kecLen = 0;
+  let kotaLen = 0;
 
-    document.getElementById('venuesGrid').style.display = isMainBareng ? 'none' : '';
-    document.getElementById('paginationNav').style.display = isMainBareng ? 'none' : '';
-    document.getElementById('mainbarengGrid').style.display = isMainBareng ? '' : 'none';
-
-    if (isMainBareng) {
-      renderMainBareng();
-    } else {
-      renderVenues();
-    }
-  }
-
-  let lokasiIndonesia = [];
-
-  // Load regions data for autocomplete
-  fetch('regions.json')
-    .then(response => response.json())
-    .then(data => {
-      lokasiIndonesia = [];
-      data.forEach(item => {
-        item.kota.forEach(kota => {
-          lokasiIndonesia.push(`${kota}, ${item.provinsi}`);
-      });
-    });
-
-      const locationInput = document.getElementById('locationAutocomplete');
-      const suggestionsList = document.getElementById('locationSuggestions');
-
-      locationInput.addEventListener('input', function() {
-      const keyword = this.value.trim().toLowerCase();
-      suggestionsList.innerHTML = '';
-        if (!keyword || lokasiIndonesia.length === 0) return;
-
-      let filtered = lokasiIndonesia.filter(l => l.toLowerCase().includes(keyword));
-        if (keyword === 'jawa') {
-      filtered = lokasiIndonesia.filter(l => l.toLowerCase().includes('jawa')).slice(0, 5);
-      } else {
-      filtered = filtered.slice(0, 5);
+  Object.keys(window.allWilayah).forEach(nama => {
+    const namaLower = nama.toLowerCase();
+    if (alamatLower.includes(namaLower) || namaLower.includes(alamatLower)) {
+      const jenis = window.allWilayah[nama].jenis;
+      if (jenis === 'kecamatan' && nama.length > kecLen) {
+        kecamatan = nama;
+        kecLen = nama.length;
       }
-
-      filtered.forEach(lokasi => {
-        const li = document.createElement('li');
-        li.textContent = lokasi;
-        li.onclick = () => {
-        locationInput.value = lokasi;
-        suggestionsList.innerHTML = '';
-      };
-        suggestionsList.appendChild(li);
-      });
-    });
-
-    // Sembunyikan dropdown jika klik di luar
-    document.addEventListener('click', function(event) {
-      if (!locationInput.contains(event.target) && !suggestionsList.contains(event.target)) {
-        suggestionsList.innerHTML = '';
+      if ((jenis === 'kabupaten' || jenis === 'kota') && nama.length > kotaLen) {
+        kotaKab = nama;
+        kotaLen = nama.length;
       }
-    });
+    }
   });
 
-  // Jadwal lapangan data
-  const jadwalLapangan = [
-  { start: "07:00", end: "08:00", price: "Rp100.000" },
-  { start: "08:00", end: "09:00", price: "Rp100.000" },
-  { start: "09:00", end: "10:00", price: "Rp100.000" },
-  { start: "10:00", end: "11:00", price: "Rp100.000" },
-  { start: "11:00", end: "12:00", price: "Rp100.000" },
-  { start: "12:00", end: "13:00", price: "Rp100.000" },
-  { start: "13:00", end: "14:00", price: "Rp100.000" },
-  { start: "14:00", end: "15:00", price: "Rp100.000" },
-  { start: "15:00", end: "16:00", price: "Rp100.000" },
-  { start: "16:00", end: "17:00", price: "Rp100.000" },
-  { start: "17:00", end: "18:00", price: "Rp100.000" },
-  { start: "18:00", end: "19:00", price: "Rp100.000" },
-  { start: "19:00", end: "20:00", price: "Rp100.000" },
-  { start: "20:00", end: "21:00", price: "Rp100.000" },
-  { start: "21:00", end: "22:00", price: "Rp100.000" }
-];
+  if (kecamatan && kotaKab) return `${capitalizeWords(kecamatan)}, ${capitalizeWords(kotaKab)}`;
+  if (kecamatan) return capitalizeWords(kecamatan);
+  if (kotaKab) return capitalizeWords(kotaKab);
+  return '-';
+}
 
-  // Render venues with pagination
-  function renderVenues() {
-    const container = document.getElementById('venuesGrid');
-    container.innerHTML = '';
-
-    const filtered = filterVenues();
-    const totalVenues = filtered.length;
-    const totalPages = Math.ceil(totalVenues / venuesPerPage);
-
-    // Adjust currentPage if out of range
-    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
-    if (currentPage < 1) currentPage = 1;
-
-    // Paginate
-    const startIndex = (currentPage - 1) * venuesPerPage;
-    const paginatedVenues = filtered.slice(startIndex, startIndex + venuesPerPage);
-
-    if (paginatedVenues.length === 0) {
-      container.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; color:#888; user-select:none;">Venue tidak ditemukan.</p>';
-      renderPagination(totalPages);
-      return;
-    }
-
-    paginatedVenues.forEach(venue => {
-      container.appendChild(createVenueCard(venue));
+function initAutocomplete() {
+  const input = document.getElementById('mainbarengLocationAutocomplete');
+  const list = document.getElementById('mainbarengLocationSuggestions');
+  input.addEventListener('input', function() {
+    const keyword = this.value.trim().toLowerCase();
+    list.innerHTML = '';
+    if (!keyword || !window.allWilayah) return;
+    const wilayahList = Object.keys(window.allWilayah);
+    const filtered = wilayahList.filter(l => l.includes(keyword)).slice(0, 5);
+    filtered.forEach(lokasi => {
+      const li = document.createElement('li');
+      li.textContent = capitalizeWords(lokasi);
+      li.onclick = () => {
+        input.value = capitalizeWords(lokasi);
+        list.innerHTML = '';
+        filterMainbarengByLocation(lokasi);
+      };
+      list.appendChild(li);
     });
-
-    renderPagination(totalPages);
-  }
+  });
+}
 
   // Render pagination controls
   function renderPagination(totalPages) {
@@ -772,7 +1573,6 @@ document.querySelectorAll('.btn-menu').forEach(btn => {
     prevBtn.onclick = () => {
       if (currentPage > 1) {
         currentPage--;
-        renderVenues();
         scrollToTop();
       }
     };
@@ -800,7 +1600,6 @@ document.querySelectorAll('.btn-menu').forEach(btn => {
       pageBtn.setAttribute('aria-label', `Goto page ${i}`);
       pageBtn.onclick = () => {
         currentPage = i;
-        renderVenues();
         scrollToTop();
       };
       pagination.appendChild(pageBtn);
@@ -814,60 +1613,31 @@ document.querySelectorAll('.btn-menu').forEach(btn => {
     nextBtn.onclick = () => {
       if (currentPage < totalPages) {
         currentPage++;
-        renderVenues();
         scrollToTop();
       }
     };
     pagination.appendChild(nextBtn);
   }
 
-  // Scroll to top function
-  function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  // Set category for filtering
-  function setCategory(category) {
-    activeCategory = category;
-    currentPage = 1;
-    // Update buttons active state
-    const btns = document.querySelectorAll('nav.categories button');
-    btns.forEach(b => b.classList.toggle('active', b.getAttribute('data-category') === category));
-    renderVenues();
-  }
-
-  // Set location for filtering
-  function setLocation(location) {
-    activeLocation = location;
-    currentPage = 1;
-    renderVenues();
-  }
-
-  // Event listener for category buttons
-  function filterVenuesEvent() {
-    const isMainBareng = document.querySelector('.btn-menu.active').textContent.trim() === 'Main Bareng';
-    currentPage = 1;
-
-    if (isMainBareng) {
-      renderMainBareng();
-      return;
-    } else {
-      renderVenues();
-    }
-  }
-
   // Attach event for search enter key
   document.getElementById('searchInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      filterVenuesEvent();
     }
   });
 
-  // Initial render
-  renderVenues();
-  document.getElementById('mainbarengGrid').style.display = 'none';
-  document.getElementById('mainbarengTitle').style.display = 'none';
+  document.getElementById('globalEventSearchInput').addEventListener('input', function() {
+  const mainBarengBtn = document.querySelector('.btn-menu');
+  if (mainBarengBtn && !mainBarengBtn.classList.contains('active')) {
+    setActiveMenu(mainBarengBtn);
+  }
+  fetchAndRenderMainBareng();
+});
+
+  document.getElementById('globalSearchBar').addEventListener('submit', function(e) {
+  e.preventDefault();
+});
+
 </script>
 </body>
 </html>
